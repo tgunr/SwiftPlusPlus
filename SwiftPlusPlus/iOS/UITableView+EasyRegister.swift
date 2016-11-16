@@ -9,20 +9,20 @@
 import UIKit
 
 extension UITableView {
-    public func registerCellWithType(type: UITableViewCell.Type) {
+    public func registerCellWithType(_ type: UITableViewCell.Type) {
         let nibName = self.nibNameFromType(type)
-        let bundle = NSBundle(forClass: type)
+        let bundle = Bundle(for: type)
         let nib = UINib(nibName: nibName, bundle: bundle)
-        self.registerNib(nib, forCellReuseIdentifier: nibName)
+        self.register(nib, forCellReuseIdentifier: nibName)
     }
 
     public func dequeueCell<CellType: UITableViewCell>() -> CellType {
         let identifier = self.nibNameFromType(CellType.self)
-        return self.dequeueReusableCellWithIdentifier(identifier) as! CellType
+        return self.dequeueReusableCell(withIdentifier: identifier) as! CellType
     }
 
-    public func nibNameFromType(type: UITableViewCell.Type) -> String {
+    public func nibNameFromType(_ type: UITableViewCell.Type) -> String {
         let fullClassName = NSStringFromClass(type)
-        return fullClassName.componentsSeparatedByString(".")[1]
+        return fullClassName.components(separatedBy: ".")[1]
     }
 }

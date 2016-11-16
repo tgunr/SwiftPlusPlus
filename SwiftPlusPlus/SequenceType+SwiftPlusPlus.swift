@@ -25,61 +25,61 @@
 
 import Foundation
 
-extension SequenceType {
+extension Sequence {
     /**
         - parameter test: function to test if an elemnt passes
 
         - returns: true if any element passes the given test
     */
-    func containsObjectPassingTest(test: (object: Self.Generator.Element) -> Bool) -> Bool {
-        for object in self {
-            if test(object: object) {
-                return true
-            }
-        }
-        return false
-    }
+//    func containsObjectPassingTest(test: (_ object: Self.Generator.Element) -> Bool) -> Bool {
+//        for object in self {
+//            if test(object: object) {
+//                return true
+//            }
+//        }
+//        return false
+//    }
 
     /**
         - parameter test: function to test if an element passes
 
         - returns: the index of a passing element or nil if none match
     */
-    func indexOfObjectPassingTest(test: (object: Self.Generator.Element) -> Bool) -> Int? {
-        var index : Int = 0
-        for object in self {
-            if test(object: object) {
-                return index
-            }
-            index += 1
-        }
-        return nil
-    }
+//    func indexOfObjectPassingTest(test: (_ object: Self.Generator.Element) -> Bool) -> Int? {
+//        var index : Int = 0
+//        for object in self {
+//            if test(object: object) {
+//                return index
+//            }
+//            index += 1
+//        }
+//        return nil
+//    }
 
 
     /**
         - returns: an array of only elements that can be cast to the resulting type
     */
-    func extractElements<C: SequenceType>() -> [C.Generator.Element] {
-        return self.map({$0 as? C.Generator.Element}).flatMap({$0})
-    }
-}
+//    func extractElements<C: Sequence>() -> [C.Generator.Element] {
+//        return self.map({$0 as? C.Generator.Element}).flatMap({$0})
+//    }
+//}
 
-extension SequenceType where Generator.Element: Equatable {
-    public func unioned<I: SequenceType where I.Generator.Element == Generator.Element>(with other: I) -> AnySequence<Generator.Element> {
-        var thisGenerator = self.generate()
-        let generate: () -> Generator.Element? = {
-            while let next = thisGenerator.next() {
-                for otherElement in other {
-                    if otherElement == next {
-                        return next
-                    }
-                }
-            }
-
-            return nil
-        }
-
-        return AnySequence({ AnyGenerator(body: generate) })
-    }
+//extension Sequence where Generator.Element: Equatable {
+//    public func unioned<I: SequenceType where I.Generator.Element == Generator.Element>(with other: I) -> AnySequence<Generator.Element> {
+//        var thisGenerator = self.generate()
+//        let generate: () -> Generator.Element? = {
+//            while let next = thisGenerator.next() {
+//                for otherElement in other {
+//                    if otherElement == next {
+//                        return next
+//                    }
+//                }
+//            }
+//
+//            return nil
+//        }
+//
+//        return AnySequence({ AnyGenerator(body: generate) })
+//    }
 }

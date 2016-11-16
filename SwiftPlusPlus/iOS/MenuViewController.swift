@@ -16,13 +16,13 @@ class MenuViewController: UITableViewController {
 
     init(menu: Menu) {
         self.menu = menu
-        super.init(style: .Grouped)
+        super.init(style: .grouped)
     }
 
     override func viewDidLoad() {
         super.viewDidLoad()
 
-        self.tableView.registerClass(UITableViewCell.self, forCellReuseIdentifier: MenuViewController.ReuseIdentifier)
+        self.tableView.register(UITableViewCell.self, forCellReuseIdentifier: MenuViewController.ReuseIdentifier)
     }
 
     required init?(coder aDecoder: NSCoder) {
@@ -31,28 +31,28 @@ class MenuViewController: UITableViewController {
 
     // MARK: UITableViewDataSource
 
-    override func numberOfSectionsInTableView(tableView: UITableView) -> Int {
+    override func numberOfSections(in tableView: UITableView) -> Int {
         return self.menu.section.count
     }
 
-    override func tableView(tableView: UITableView, titleForHeaderInSection section: Int) -> String? {
-        return self.menu.section[section].name.uppercaseString
+    override func tableView(_ tableView: UITableView, titleForHeaderInSection section: Int) -> String? {
+        return self.menu.section[section].name.uppercased()
     }
 
-    override func tableView(tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
+    override func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         return self.menu.section[section].items.count
     }
 
-    override func tableView(tableView: UITableView, cellForRowAtIndexPath indexPath: NSIndexPath) -> UITableViewCell {
-        let cell = tableView.dequeueReusableCellWithIdentifier(MenuViewController.ReuseIdentifier, forIndexPath: indexPath)
+    override func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
+        let cell = tableView.dequeueReusableCell(withIdentifier: MenuViewController.ReuseIdentifier, for: indexPath)
 
         let menuItem = self.menuItemWithIndexPath(indexPath)
         cell.textLabel?.text = menuItem.displayText()
         cell.imageView?.image = menuItem.icon
         switch menuItem.type {
-        case .HTML(_):
-            cell.accessoryType = .DisclosureIndicator
-        case .Email(_), .ExternalURL(_):
+        case .html(_):
+            cell.accessoryType = .disclosureIndicator
+        case .email(_), .externalURL(_):
             break
         }
 
@@ -61,28 +61,28 @@ class MenuViewController: UITableViewController {
 
     // MARK: UITableViewDelegate
 
-    override func tableView(tableView: UITableView, didSelectRowAtIndexPath indexPath: NSIndexPath) {
+    override func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         let menuItem = self.menuItemWithIndexPath(indexPath)
         switch menuItem.type {
-        case let .Email(address, subject):
+        case let .email(address, subject):
             let viewController = MFMailComposeViewController()
             viewController.setSubject(subject)
             viewController.setToRecipients([address])
             viewController.mailComposeDelegate = self
             self.transitionToViewController(viewController, animated: true, embeddedInNavigationController: false)
-        case let .ExternalURL(address):
-            if let URL = NSURL(string: address) {
-                UIApplication.sharedApplication().openURL(URL)
+        case let .externalURL(address):
+            if let URL = URL(string: address) {
+                UIApplication.shared.openURL(URL)
             }
             else {
                 self.showAlert(withTitle: "Invalid URL", message: "The URL was '\(address)'. Please contact support.", other: [
                     .action("OK", handler: {
-                        tableView.deselectRowAtIndexPath(indexPath, animated: true)
+                        tableView.deselectRow(at: indexPath, animated: true)
                     })
                 ])
             }
             break
-        case let .HTML(content):
+        case let .html(content):
             let viewController = WebViewController(HTML: content)
             viewController.title = menuItem.displayText()
             self.transitionToViewController(
@@ -96,13 +96,13 @@ class MenuViewController: UITableViewController {
 }
 
 extension MenuViewController: MFMailComposeViewControllerDelegate {
-    func mailComposeController(controller: MFMailComposeViewController, didFinishWithResult result: MFMailComposeResult, error: NSError?) {
+    func mailComposeController(_ controller: MFMailComposeViewController, didFinishWith result: MFMailComposeResult, error: Error?) {
         controller.transitionBackAnimated(true, onComplete: nil)
     }
 }
 
 private extension MenuViewController {
-    func menuItemWithIndexPath(indexPath: NSIndexPath) -> MenuItem {
+    func menuItemWithIndexPath(_ indexPath: IndexPath) -> MenuItem {
         return self.menu.section[indexPath.section].items[indexPath.row]
     }
 }

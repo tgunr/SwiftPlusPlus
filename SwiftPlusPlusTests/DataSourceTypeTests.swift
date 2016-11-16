@@ -12,7 +12,7 @@ import SwiftPlusPlus
 extension Array: DataSourceType {
     public typealias ValueType = Element
 
-    public func itemAtIndex(index: Int) -> ValueType {
+    public func itemAtIndex(_ index: Int) -> ValueType {
         return self[index]
     }
 }
@@ -31,7 +31,7 @@ class DataSourceTypeTests: XCTestCase {
         }
 
         XCTAssertEqual(dataSource.tableView(tableView, numberOfRowsInSection: 0), 3)
-        XCTAssertEqual(dataSource.tableView(tableView, cellForRowAtIndexPath: NSIndexPath(forRow: 1, inSection: 0)), tableCell)
+        XCTAssertEqual(dataSource.tableView(tableView, cellForRowAt: IndexPath(row: 1, section: 0)), tableCell)
     }
 
     func testCollectionDataSource() {
@@ -47,6 +47,6 @@ class DataSourceTypeTests: XCTestCase {
         }
 
         XCTAssertEqual(dataSource.collectionView(collectionView, numberOfItemsInSection: 0), 3)
-        XCTAssertEqual(dataSource.collectionView(collectionView, cellForItemAtIndexPath: NSIndexPath(forRow: 1, inSection: 0)), cell)
+        XCTAssertEqual(dataSource.collectionView(collectionView, cellForItemAt: IndexPath(row: 1, section: 0)), cell)
     }
 }

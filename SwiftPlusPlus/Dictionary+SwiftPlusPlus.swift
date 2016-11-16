@@ -44,32 +44,36 @@ extension Dictionary {
     }
 }
 
-public protocol PercentEncodableType {
-    func stringByAddingPercentEncodingWithAllowedCharacters(allowedCharacters: NSCharacterSet) -> String?
-}
-extension String: PercentEncodableType {}
+//public protocol PercentEncodableType {
+//    func stringByAddingPercentEncodingWithAllowedCharacters(_ allowedCharacters: CharacterSet) -> String?
+//}
+//extension String: PercentEncodableType {
+//    public func stringByAddingPercentEncodingWithAllowedCharacters(_ allowedCharacters: CharacterSet) -> String? {
+//        // TODO code
+//    }
+//}
 
-extension Dictionary where Key: PercentEncodableType, Value: PercentEncodableType {
-    public var URLEncodedDictionary: [String:String]? {
-        var returnDict = [String:String]()
-        for (key, value) in self {
-            if let encodedKey = key.stringByAddingPercentEncodingWithAllowedCharacters(NSCharacterSet.alphanumericCharacterSet()),
-                let encodedValue = value.stringByAddingPercentEncodingWithAllowedCharacters(NSCharacterSet.alphanumericCharacterSet())
-            {
-                returnDict[encodedKey] = encodedValue
-            }
-            else {
-                return nil
-            }
-        }
-        return returnDict
-    }
-
-    public var URLEncodedString: String? {
-        return self.URLEncodedDictionary?.map({"\($0)=\($1)"}).joinWithSeparator("&")
-    }
-
-    public var URLEncodedData: NSData? {
-        return self.URLEncodedString?.dataUsingEncoding(NSUTF8StringEncoding, allowLossyConversion: false)
-    }
-}
+//extension Dictionary where Key: PercentEncodableType, Value: PercentEncodableType {
+//    public var URLEncodedDictionary: [String:String]? {
+//        var returnDict = [String:String]()
+//        for (key, value) in self {
+//            if let encodedKey = key.stringByAddingPercentEncodingWithAllowedCharacters(CharacterSet.alphanumerics),
+//                let encodedValue = value.stringByAddingPercentEncodingWithAllowedCharacters(CharacterSet.alphanumerics)
+//            {
+//                returnDict[encodedKey] = encodedValue
+//            }
+//            else {
+//                return nil
+//            }
+//        }
+//        return returnDict
+//    }
+//
+//    public var URLEncodedString: String? {
+//        return self.URLEncodedDictionary?.map({"\($0)=\($1)"}).joined(separator: "&")
+//    }
+//
+//    public var URLEncodedData: Data? {
+//        return self.URLEncodedString?.data(using: String.Encoding.utf8, allowLossyConversion: false)
+//    }
+//}

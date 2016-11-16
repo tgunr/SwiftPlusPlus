@@ -8,38 +8,38 @@
 
 import UIKit
 
-@IBDesignable public class ShadowView: UIView {
-    @IBInspectable public var shadowColor: UIColor = UIColor.blackColor() {
+@IBDesignable open class ShadowView: UIView {
+    @IBInspectable open var shadowColor: UIColor = UIColor.black {
         didSet {
             self.update()
         }
     }
 
-    @IBInspectable public var shadowOpacity: Float = 0.5 {
+    @IBInspectable open var shadowOpacity: Float = 0.5 {
         didSet {
             self.update()
         }
     }
 
-    @IBInspectable public var shadowOffsetX: CGFloat = 0 {
+    @IBInspectable open var shadowOffsetX: CGFloat = 0 {
         didSet {
             self.update()
         }
     }
 
-    @IBInspectable public var shadowOffsetY: CGFloat = 0 {
+    @IBInspectable open var shadowOffsetY: CGFloat = 0 {
         didSet {
             self.update()
         }
     }
 
-    @IBInspectable public var shadowRadius: CGFloat = 5 {
+    @IBInspectable open var shadowRadius: CGFloat = 5 {
         didSet {
             self.update()
         }
     }
 
-    override public func awakeFromNib() {
+    override open func awakeFromNib() {
         super.awakeFromNib()
 
         self.update()
@@ -48,7 +48,7 @@ import UIKit
 
 private extension ShadowView {
     func update() {
-        self.layer.shadowColor = self.shadowColor.CGColor
+        self.layer.shadowColor = self.shadowColor.cgColor
         self.layer.shadowOffset = CGSize(width: self.shadowOffsetX, height: self.shadowOffsetY)
         self.layer.shadowOpacity = self.shadowOpacity
         self.layer.shadowRadius = self.shadowRadius

@@ -11,11 +11,11 @@ import Foundation
 public struct JSON: CustomStringConvertible {
     public let object: AnyObject
 
-    public init(data: NSData) throws {
-        self.object = try NSJSONSerialization.JSONObjectWithData(
-            data,
-            options: NSJSONReadingOptions()
-        )
+    public init(data: Data) throws {
+        self.object = try JSONSerialization.jsonObject(
+            with: data,
+            options: JSONSerialization.ReadingOptions()
+        ) as AnyObject
     }
 
     public init(object: AnyObject) {
@@ -65,7 +65,7 @@ public struct JSON: CustomStringConvertible {
         if let array = self.object as? [AnyObject] {
             return array.map {JSON(object: $0)}
         }
-        else if let dict = self.object as? [String:AnyObject] where dict.count == 1 {
+        else if let dict = self.object as? [String:AnyObject], dict.count == 1 {
             return Array(dict.values).map {JSON(object: $0)}
         }
         return nil
@@ -92,7 +92,7 @@ public struct JSON: CustomStringConvertible {
     }
 
     public subscript(int: Int) -> JSON? {
-        if let array = self.object as? [AnyObject] where int < array.count {
+        if let array = self.object as? [AnyObject], int < array.count {
             return JSON(object: array[int])
         }
         return nil
@@ -102,10 +102,10 @@ public struct JSON: CustomStringConvertible {
         return "\(self.object)"
     }
 
-    public func toData() throws -> NSData {
-        return try NSJSONSerialization.dataWithJSONObject(
-            self.object,
-            options: NSJSONWritingOptions()
+    public func toData() throws -> Data {
+        return try JSONSerialization.data(
+            withJSONObject: self.object,
+            options: JSONSerialization.WritingOptions()
         )
     }
 

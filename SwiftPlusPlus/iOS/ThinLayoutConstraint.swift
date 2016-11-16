@@ -10,6 +10,6 @@ import Foundation
 
 class ThinLayoutConstraint: NSLayoutConstraint {
     override func awakeFromNib() {
-        self.constant = 1 / UIScreen.mainScreen().scale
+        self.constant = 1 / UIScreen.main.scale
     }
 }

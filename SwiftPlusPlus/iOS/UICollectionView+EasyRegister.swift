@@ -9,20 +9,20 @@
 import UIKit
 
 extension UICollectionView {
-    public func registerCellWithType(type: UICollectionViewCell.Type) {
+    public func registerCellWithType(_ type: UICollectionViewCell.Type) {
         let nibName = self.nibNameFromType(type)
-        let bundle = NSBundle(forClass: type)
+        let bundle = Bundle(for: type)
         let nib = UINib(nibName: nibName, bundle: bundle)
-        self.registerNib(nib, forCellWithReuseIdentifier: nibName)
+        self.register(nib, forCellWithReuseIdentifier: nibName)
     }
 
-    public func dequeueCell<CellType: UICollectionViewCell>(for indexPath: NSIndexPath) -> CellType {
+    public func dequeueCell<CellType: UICollectionViewCell>(for indexPath: IndexPath) -> CellType {
         let identifier = self.nibNameFromType(CellType.self)
-        return self.dequeueReusableCellWithReuseIdentifier(identifier, forIndexPath: indexPath) as! CellType
+        return self.dequeueReusableCell(withReuseIdentifier: identifier, for: indexPath) as! CellType
     }
 
-    public func nibNameFromType(type: UICollectionViewCell.Type) -> String {
+    public func nibNameFromType(_ type: UICollectionViewCell.Type) -> String {
         let fullClassName = NSStringFromClass(type)
-        return fullClassName.componentsSeparatedByString(".")[1]
+        return fullClassName.components(separatedBy: ".")[1]
     }
 }

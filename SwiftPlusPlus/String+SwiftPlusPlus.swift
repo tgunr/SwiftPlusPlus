@@ -30,7 +30,7 @@ extension String {
 
         - returns: a string by repeating it 'times' times
     */
-    public func stringByRepeatingNTimes(times: Int, separator: String = "") -> String {
+    public func stringByRepeatingNTimes(_ times: Int, separator: String = "") -> String {
         var result = ""
         for i in 0..<times {
             result += self
@@ -41,26 +41,26 @@ extension String {
         return result
     }
 
-    public func substringFromIndex(index: Int) -> String {
-        var pos = self.startIndex
-        pos = pos.advancedBy(index)
-        return self.substringFromIndex(pos)
+    public func substringFromIndex(_ fromIndex: Int) -> String {
+        let first = self.startIndex
+        let i = self.index(first, offsetBy: fromIndex)
+        return self.substring(from: i)
     }
 
-    public func substringToIndex(index: Int) -> String {
-        var pos = self.startIndex
-        pos = pos.advancedBy(index)
-        return self.substringToIndex(pos)
+    public func substringToIndex(_ toIndex: Int) -> String {
+        let first = self.startIndex
+        let i = self.index(first, offsetBy: toIndex)
+        return self.substring(to: i)
     }
 
     public var isValidEmail: Bool {
         let emailRegEx = "^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(?:\\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)*$"
 
         let emailTest = NSPredicate(format:"SELF MATCHES %@", emailRegEx)
-        return emailTest.evaluateWithObject(self)
+        return emailTest.evaluate(with: self)
     }
 }
 
 public func /(lhs: String, rhs: String) -> String {
-    return (lhs as NSString).stringByAppendingPathComponent(rhs)
+    return (lhs as NSString).appendingPathComponent(rhs)
 }

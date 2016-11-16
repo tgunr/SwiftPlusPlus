@@ -11,60 +11,60 @@
 // draw from multiple threads at once. These properties and methods work directly off the
 // context so you don't have to worry what is currently on the stack.
 extension CGContext {
-    public var CGImage: CGImageRef? {
-        return CGBitmapContextCreateImage(self)
+    public var CGImage: CGImage? {
+        return self.makeImage()
     }
 
     public var image: UIImage? {
         guard let CGImage = self.CGImage else {
             return nil
         }
-        return UIImage(CGImage: CGImage)
+        return UIImage(cgImage: CGImage)
     }
 
-    public func draw(image: UIImage?, inRect rect: CGRect) {
-        self.draw(image?.CGImage, inRect: rect)
+    public func draw(_ image: UIImage?, inRect rect: CGRect) {
+        self.draw(image?.cgImage, inRect: rect)
     }
 
-    public func draw(image: CGImageRef?, inRect rect: CGRect) {
+    public func draw(_ image: CGImage?, inRect rect: CGRect) {
         guard let image = image else {
             return
         }
 
-        CGContextSaveGState(self)
-        CGContextTranslateCTM(self, 0, rect.height);
-        CGContextScaleCTM(self, 1.0, -1.0);
+        self.saveGState()
+        self.translateBy(x: 0, y: rect.height);
+        self.scaleBy(x: 1.0, y: -1.0);
 
-        CGContextDrawImage(self, rect, image)
+        self.draw(image, in: rect)
 
-        CGContextRestoreGState(self)
+        self.restoreGState()
     }
 
-    public static func createImageContext(withSize size: CGSize, coordinateSystem: CoordinateSystem = .UIKit) -> CGContext? {
+    public static func createImageContext(withSize size: CGSize, coordinateSystem: CoordinateSystem = .uiKit) -> CGContext? {
         let scale: CGFloat
         switch coordinateSystem {
-        case .UIKit:
-            scale = UIScreen.mainScreen().scale
-        case .PDF:
+        case .uiKit:
+            scale = UIScreen.main.scale
+        case .pdf:
             scale = 1
         }
-        let bitmapInfo = CGBitmapInfo(rawValue: CGImageAlphaInfo.PremultipliedFirst.rawValue)
+        let bitmapInfo = CGBitmapInfo(rawValue: CGImageAlphaInfo.premultipliedFirst.rawValue)
         let colorSpace = CGColorSpaceCreateDeviceRGB()
-        let context = CGBitmapContextCreate(
-            nil,
-            Int(size.width * scale),
-            Int(size.height * scale),
-            8,
-            Int(size.width * scale * 4),
-            colorSpace,
-            bitmapInfo.rawValue
+        let context = CGContext(
+            data: nil,
+            width: Int(size.width * scale),
+            height: Int(size.height * scale),
+            bitsPerComponent: 8,
+            bytesPerRow: Int(size.width * scale * 4),
+            space: colorSpace,
+            bitmapInfo: bitmapInfo.rawValue
         )!
 
         switch coordinateSystem {
-        case .UIKit:
-            CGContextTranslateCTM(context, 0, size.height * scale);
-            CGContextScaleCTM(context, scale, -scale)
-        case .PDF:
+        case .uiKit:
+            context.translateBy(x: 0, y: size.height * scale);
+            context.scaleBy(x: scale, y: -scale)
+        case .pdf:
             break
         }
 
@@ -73,6 +73,6 @@ extension CGContext {
 }
 
 public enum CoordinateSystem {
-    case UIKit
-    case PDF
+    case uiKit
+    case pdf
 }

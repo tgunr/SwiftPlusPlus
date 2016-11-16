@@ -12,38 +12,38 @@ import Foundation
 class PresentUnderTopBarTransition: ViewControllerTransition {
     let containerView = UIView()
 
-    override func performAnimated(animated: Bool, onComplete: (() -> Void)?) {
+    override func performAnimated(_ animated: Bool, onComplete: (() -> Void)?) {
         self.sourceViewController.addChildViewController(self.destinationViewController)
 
         let sourceView = self.sourceViewController.view
         let destinationView = self.destinationViewController.view
-        sourceView.addSubview(containerView)
-        self.setupContainerView(containerView, withDestinationView: destinationView)
+        sourceView?.addSubview(containerView)
+        self.setupContainerView(containerView, withDestinationView: destinationView!)
 
         let topConstraint = NSLayoutConstraint(
             item: containerView,
-            attribute: .Top,
-            relatedBy: .Equal,
+            attribute: .top,
+            relatedBy: .equal,
             toItem: self.sourceViewController.topLayoutGuide,
-            attribute: .Bottom,
+            attribute: .bottom,
             multiplier: 1,
             constant: 0
         )
         let belowConstraint = NSLayoutConstraint(
             item: containerView,
-            attribute: .Top,
-            relatedBy: .Equal,
+            attribute: .top,
+            relatedBy: .equal,
             toItem: sourceView,
-            attribute: .Bottom,
+            attribute: .bottom,
             multiplier: 1,
             constant: 0
         )
-        let heightConstraint = NSLayoutConstraint(sameHeightForView: containerView, andView: sourceView)
-        let leftConstraint = NSLayoutConstraint(leftOfView: containerView, toView: sourceView)
-        let rightConstraint = NSLayoutConstraint(rightOfView: containerView, toView: sourceView)
+        let heightConstraint = NSLayoutConstraint(sameHeightForView: containerView, andView: sourceView!)
+        let leftConstraint = NSLayoutConstraint(leftOfView: containerView, toView: sourceView!)
+        let rightConstraint = NSLayoutConstraint(rightOfView: containerView, toView: sourceView!)
         containerView.translatesAutoresizingMaskIntoConstraints = false
-        destinationView.translatesAutoresizingMaskIntoConstraints = false
-        sourceView.addConstraints([
+        destinationView?.translatesAutoresizingMaskIntoConstraints = false
+        sourceView?.addConstraints([
             belowConstraint,
             heightConstraint,
             leftConstraint,
@@ -51,14 +51,14 @@ class PresentUnderTopBarTransition: ViewControllerTransition {
         ])
 
         func animations() {
-            sourceView.removeConstraint(belowConstraint)
-            sourceView.addConstraint(topConstraint)
-            sourceView.layoutIfNeeded()
+            sourceView?.removeConstraint(belowConstraint)
+            sourceView?.addConstraint(topConstraint)
+            sourceView?.layoutIfNeeded()
         }
 
         if animated {
-            sourceView.layoutIfNeeded()
-            UIView.animateWithDuration(0.3,
+            sourceView?.layoutIfNeeded()
+            UIView.animate(withDuration: 0.3,
                 animations: animations,
                 completion: { _ in
                     onComplete?()
@@ -71,12 +71,12 @@ class PresentUnderTopBarTransition: ViewControllerTransition {
         }
     }
 
-    override func reverse(animated: Bool, onComplete: (() -> Void)?) {
+    override func reverse(_ animated: Bool, onComplete: (() -> Void)?) {
         let sourceView = self.sourceViewController.view
         let destinationView = self.destinationViewController.view
 
         func animations() {
-            destinationView.frame = destinationView.frame.offsetBy(dx: 0, dy: destinationView.frame.height)
+            destinationView?.frame = (destinationView?.frame.offsetBy(dx: 0, dy: (destinationView?.frame.height)!))!
         }
 
         func completion(_: Bool) {
@@ -86,7 +86,7 @@ class PresentUnderTopBarTransition: ViewControllerTransition {
         }
 
         if animated {
-            UIView.animateWithDuration(0.3, animations: animations, completion: completion)
+            UIView.animate(withDuration: 0.3, animations: animations, completion: completion)
         }
         else {
             animations()
@@ -97,7 +97,7 @@ class PresentUnderTopBarTransition: ViewControllerTransition {
 
 @available(iOS 8.0, *)
 private extension PresentUnderTopBarTransition {
-    func setupContainerView(containerView: UIView, withDestinationView destinationView: UIView) -> UIView {
+    func setupContainerView(_ containerView: UIView, withDestinationView destinationView: UIView) -> UIView {
         let spacerView = UIView()
         spacerView.translatesAutoresizingMaskIntoConstraints = false
 
@@ -113,13 +113,13 @@ private extension PresentUnderTopBarTransition {
 
             // Vertical
             NSLayoutConstraint(topOfView: destinationView, toView: containerView),
-            NSLayoutConstraint(item: spacerView, attribute: .Top, relatedBy: .Equal, toItem: destinationView, attribute: .Bottom, multiplier: 1, constant: 0),
+            NSLayoutConstraint(item: spacerView, attribute: .top, relatedBy: .equal, toItem: destinationView, attribute: .bottom, multiplier: 1, constant: 0),
             NSLayoutConstraint(bottomOfView: spacerView, toView: containerView),
         ])
 
         self.sourceViewController.view.addConstraints([
             // Height
-            NSLayoutConstraint(item: spacerView, attribute: .Height, relatedBy: .Equal, toItem: self.sourceViewController.topLayoutGuide, attribute: .Height, multiplier: 1, constant: 0),
+            NSLayoutConstraint(item: spacerView, attribute: .height, relatedBy: .equal, toItem: self.sourceViewController.topLayoutGuide, attribute: .height, multiplier: 1, constant: 0),
         ])
 
         return containerView

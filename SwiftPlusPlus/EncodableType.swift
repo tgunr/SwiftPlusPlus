@@ -11,12 +11,12 @@ import Foundation
 public protocol EncodableType {
     init?(decoder: DecoderType)
 
-    func encode(encoder: EncoderType)
+    func encode(_ encoder: EncoderType)
 }
 
 extension EncodableType {
     public func copy() -> Self {
-        let object = NativeTypesEncoder.objectFromEncodable(self)
+        let object = NativeTypesEncoder.objectFromEncodable(encodable: self)
         return NativeTypesDecoder.decodableTypeFromObject(object)!
     }
 }

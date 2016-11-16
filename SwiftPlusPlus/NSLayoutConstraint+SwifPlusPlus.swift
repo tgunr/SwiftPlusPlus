@@ -10,8 +10,8 @@ import Foundation
 
 extension NSLayoutConstraint {
     @available(iOS 8.0, *)
-    public func setMultiplier(multiplier:CGFloat) {
-        NSLayoutConstraint.deactivateConstraints([self])
+    public func setMultiplier(_ multiplier:CGFloat) {
+        NSLayoutConstraint.deactivate([self])
 
         let newConstraint = NSLayoutConstraint(
             item: firstItem,
@@ -25,8 +25,8 @@ extension NSLayoutConstraint {
         newConstraint.priority = self.priority
         newConstraint.shouldBeArchived = self.shouldBeArchived
         newConstraint.identifier = self.identifier
-        newConstraint.active = self.active
+        newConstraint.isActive = self.isActive
 
-        NSLayoutConstraint.activateConstraints([newConstraint])
+        NSLayoutConstraint.activate([newConstraint])
     }
 }

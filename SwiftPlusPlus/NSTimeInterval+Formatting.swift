@@ -8,11 +8,11 @@
 
 import Foundation
 
-extension NSTimeInterval {
+extension TimeInterval {
     public var displayString: String {
-        let seconds = Int(self % 60)
-        let minutes = Int(self / 60 % 60)
-        let hours = Int(self / 60 / 60 % 60)
+        let seconds = Int(self.truncatingRemainder(dividingBy: 60))
+        let minutes = Int((self / 60).truncatingRemainder(dividingBy: 60))
+        let hours = Int((self / 60 / 60).truncatingRemainder(dividingBy: 60))
         switch self {
         case 0:
             return "0"

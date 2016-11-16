@@ -6,10 +6,10 @@
 //  Copyright © 2016 Drewag LLC. All rights reserved.
 //
 
-extension NSURL {
-    public func pathComponents(differentFrom URL: NSURL) -> [String] {
-        let left = self.URLByResolvingSymlinksInPath!.pathComponents ?? []
-        let right = URL.URLByResolvingSymlinksInPath!.pathComponents ?? []
+extension URL {
+    public func pathComponents(differentFrom URL: Foundation.URL) -> [String] {
+        let left = self.resolvingSymlinksInPath().pathComponents ?? []
+        let right = URL.resolvingSymlinksInPath().pathComponents ?? []
 
         var components = [String]()
         for i in 0 ..< left.count {

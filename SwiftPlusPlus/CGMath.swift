@@ -23,7 +23,7 @@ extension CGPoint {
         }
     }
 
-    public func centerBetween(otherPoint: CGPoint) -> CGPoint {
+    public func centerBetween(_ otherPoint: CGPoint) -> CGPoint {
         return CGPoint(
             x: self.x + (otherPoint.x - self.x) / 2,
             y: self.y + (otherPoint.y - self.y) / 2
@@ -41,7 +41,7 @@ public func +(lhs: CGPoint, rhs: CGPoint) -> CGPoint {
     return CGPoint(x: lhs.x + rhs.x, y: lhs.y + rhs.y)
 }
 
-public func +=(inout lhs: CGPoint, rhs: CGPoint) {
+public func +=(lhs: inout CGPoint, rhs: CGPoint) {
     lhs.x += rhs.x
     lhs.y += rhs.y
 }
@@ -50,7 +50,7 @@ public func -(lhs: CGPoint, rhs: CGPoint) -> CGPoint {
     return CGPoint(x: lhs.x - rhs.x, y: lhs.y - rhs.y)
 }
 
-public func -=(inout lhs: CGPoint, rhs: CGPoint) {
+public func -=(lhs: inout CGPoint, rhs: CGPoint) {
     lhs.x -= rhs.x
     lhs.y -= rhs.y
 }

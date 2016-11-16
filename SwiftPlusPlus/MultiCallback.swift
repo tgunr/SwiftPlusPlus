@@ -16,8 +16,8 @@ public final class MultiCallback<CallbackArguments> {
     
     // MARK: Properties
     
-    private var observers: [(observer: WeakWrapper, callbacks: [CallBackType])] = []
-    private var onHasObserverChanged: ((Bool) -> ())?
+    fileprivate var observers: [(observer: WeakWrapper, callbacks: [CallBackType])] = []
+    fileprivate var onHasObserverChanged: ((Bool) -> ())?
 
     /**
      Whether there is at least 1 current observer
@@ -40,7 +40,7 @@ public final class MultiCallback<CallbackArguments> {
         - parameter observer: observing object to be referenced later to remove the hundler
         - parameter callback: callback to be called
     */
-    public func addObserver(observer: AnyObject, callback: CallBackType) {
+    public func addObserver(_ observer: AnyObject, callback: @escaping CallBackType) {
         if let index = self.indexOfObserver(observer) {
             // since the observer exists, add the callback to the existing array
             self.observers[index].callbacks.append(callback)
@@ -61,9 +61,9 @@ public final class MultiCallback<CallbackArguments> {
     
         - parameter observer: observing object passed in when registering the callback originally
     */
-    public func removeObserver(observer: AnyObject) {
+    public func removeObserver(_ observer: AnyObject) {
         if let index = self.indexOfObserver(observer) {
-            self.observers.removeAtIndex(index)
+            self.observers.remove(at: index)
             if self.observers.count == 0 {
                 self.onHasObserverChanged?(false)
             }
@@ -77,7 +77,7 @@ public final class MultiCallback<CallbackArguments> {
     
         - parameter arguments: the arguments to trigger the callbacks with
     */
-    public func triggerWithArguments(arguments: CallbackArguments) {
+    public func triggerWithArguments(_ arguments: CallbackArguments) {
         for (observer, callbacks) in self.observers {
             if observer.value != nil {
                 for callback in callbacks {
@@ -86,7 +86,7 @@ public final class MultiCallback<CallbackArguments> {
             }
             else {
                 if let index = self.indexOfObserver(observer) {
-                    self.observers.removeAtIndex(index)
+                    self.observers.remove(at: index)
                 }
             }
         }
@@ -96,7 +96,7 @@ public final class MultiCallback<CallbackArguments> {
 // MARK - Private Methods
 
 private extension MultiCallback {
-    func indexOfObserver(observer: AnyObject) -> Int? {
+    func indexOfObserver(_ observer: AnyObject) -> Int? {
         var index: Int = 0
         for (possibleObserver, _) in self.observers {
             if possibleObserver.value === observer {

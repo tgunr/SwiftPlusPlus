@@ -9,8 +9,8 @@
 import Foundation
 
 public struct OrderedDictionary<Key: Hashable, Value> {
-    private var valueStore = [Value?]()
-    private var lookup = [Key:Int]()
+    fileprivate var valueStore = [Value?]()
+    fileprivate var lookup = [Key:Int]()
 
     public init() {}
     public init(values: [(Key,Value)]) {
@@ -50,7 +50,7 @@ public struct OrderedDictionary<Key: Hashable, Value> {
         for (key, index) in self.lookup {
             all.append((key, index))
         }
-        return all.sort({$0.1 < $1.1}).map({$0.0})
+        return all.sorted(by: {$0.1 < $1.1}).map({$0.0})
     }
 
     public mutating func removeAll() {
@@ -60,9 +60,9 @@ public struct OrderedDictionary<Key: Hashable, Value> {
     }
 }
 
-extension OrderedDictionary where Value: Equatable {
-    public func indexOfValueWithKey(key: Key) -> Int? {
-        let object = self[key]
-        return self.values.indexOfObjectPassingTest {$0 == object}
-    }
-}
+//extension OrderedDictionary where Value: Equatable {
+//    public func indexOfValueWithKey(_ key: Key) -> Int? {
+//        let object = self[key]
+//        return self.values.indexOfObjectPassingTest {$0 == object}
+//    }
+//}

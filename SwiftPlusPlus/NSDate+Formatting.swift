@@ -8,148 +8,148 @@
 
 import Foundation
 
-private let dateAndTimeFormatter: NSDateFormatter = {
-    var dateFormatter = NSDateFormatter()
-    dateFormatter.locale = NSLocale(localeIdentifier:"en_US_POSIX")
+private let dateAndTimeFormatter: DateFormatter = {
+    var dateFormatter = DateFormatter()
+    dateFormatter.locale = Locale(identifier:"en_US_POSIX")
     dateFormatter.dateFormat = "yyyy'-'MM'-'dd' at 'hh:mm a"
     return dateFormatter
 }()
 
-private let timeFormatter: NSDateFormatter = {
-    var dateFormatter = NSDateFormatter()
-    dateFormatter.locale = NSLocale(localeIdentifier:"en_US_POSIX")
+private let timeFormatter: DateFormatter = {
+    var dateFormatter = DateFormatter()
+    dateFormatter.locale = Locale(identifier:"en_US_POSIX")
     dateFormatter.dateFormat = "h':'mm a"
     return dateFormatter
 }()
 
-private let dateFormatter: NSDateFormatter = {
-    var dateFormatter = NSDateFormatter()
-    dateFormatter.locale = NSLocale(localeIdentifier:"en_US_POSIX")
+private let dateFormatter: DateFormatter = {
+    var dateFormatter = DateFormatter()
+    dateFormatter.locale = Locale(identifier:"en_US_POSIX")
     dateFormatter.dateFormat = "MMM. dd, yyyy"
     return dateFormatter
 }()
 
-private let shortDateFormatter: NSDateFormatter = {
-    var dateFormatter = NSDateFormatter()
-    dateFormatter.locale = NSLocale(localeIdentifier:"en_US_POSIX")
+private let shortDateFormatter: DateFormatter = {
+    var dateFormatter = DateFormatter()
+    dateFormatter.locale = Locale(identifier:"en_US_POSIX")
     dateFormatter.dateFormat = "MM'/'dd'/'yyyy"
     return dateFormatter
 }()
 
-private let shortestDateFormatter: NSDateFormatter = {
-    var dateFormatter = NSDateFormatter()
-    dateFormatter.locale = NSLocale(localeIdentifier:"en_US_POSIX")
+private let shortestDateFormatter: DateFormatter = {
+    var dateFormatter = DateFormatter()
+    dateFormatter.locale = Locale(identifier:"en_US_POSIX")
     dateFormatter.dateFormat = "MM'/'dd'/'yy"
     return dateFormatter
 }()
 
-private let dayAndMonthFormatter: NSDateFormatter = {
-    var dateFormatter = NSDateFormatter()
-    dateFormatter.locale = NSLocale(localeIdentifier:"en_US_POSIX")
+private let dayAndMonthFormatter: DateFormatter = {
+    var dateFormatter = DateFormatter()
+    dateFormatter.locale = Locale(identifier:"en_US_POSIX")
     dateFormatter.dateFormat = "MM'/'dd"
     return dateFormatter
 }()
 
-private let railsDateTimeFormatter: NSDateFormatter = {
-    var dateFormatter = NSDateFormatter()
-    let timeZone = NSTimeZone(name: "UTC")
+private let railsDateTimeFormatter: DateFormatter = {
+    var dateFormatter = DateFormatter()
+    let timeZone = TimeZone(identifier: "UTC")
     dateFormatter.dateFormat = "yyyy'-'MM'-'dd'T'HH':'mm':'ss'Z'"
     dateFormatter.timeZone = timeZone
     return dateFormatter
 }()
 
-private let iso8601DateTimeFormatter: NSDateFormatter = {
-    var dateFormatter = NSDateFormatter()
-    let timeZone = NSTimeZone(name: "UTC")
+private let iso8601DateTimeFormatter: DateFormatter = {
+    var dateFormatter = DateFormatter()
+    let timeZone = TimeZone(identifier: "UTC")
     dateFormatter.dateFormat = "yyyy'-'MM'-'dd'T'HH':'mm':'ss'.'S'Z'"
     dateFormatter.timeZone = timeZone
     return dateFormatter
 }()
 
-private let railsDateFormatter: NSDateFormatter = {
-    var dateFormatter = NSDateFormatter()
+private let railsDateFormatter: DateFormatter = {
+    var dateFormatter = DateFormatter()
     dateFormatter.dateFormat = "yyyy'-'MM'-'dd"
     return dateFormatter
 }()
 
-private let authTokenDate: NSDateFormatter = {
-    var dateFormatter = NSDateFormatter()
+private let authTokenDate: DateFormatter = {
+    var dateFormatter = DateFormatter()
     dateFormatter.dateFormat = "ddMMyyyy"
     return dateFormatter
 }()
 
-private let preciseTimeFormatter: NSDateFormatter = {
-    var dateFormatter = NSDateFormatter()
-    let timeZone = NSTimeZone(name: "UTC")
+private let preciseTimeFormatter: DateFormatter = {
+    var dateFormatter = DateFormatter()
+    let timeZone = TimeZone(identifier: "UTC")
     dateFormatter.dateFormat = "HH':'mm':'ss"
     dateFormatter.timeZone = timeZone
     return dateFormatter
 }()
 
-extension NSDate {
+extension Date {
     public var asDateAndTime: String {
-        return dateAndTimeFormatter.stringFromDate(self)
+        return dateAndTimeFormatter.string(from: self)
     }
 
     public var asDate: String {
-        return dateFormatter.stringFromDate(self)
+        return dateFormatter.string(from: self)
     }
 
     public var asTime: String {
-        return timeFormatter.stringFromDate(self)
+        return timeFormatter.string(from: self)
     }
 
     public var asShortDate: String {
-        return shortDateFormatter.stringFromDate(self)
+        return shortDateFormatter.string(from: self)
     }
 
     public var asShortestDate: String {
-        return shortestDateFormatter.stringFromDate(self)
+        return shortestDateFormatter.string(from: self)
     }
 
     public var asDayAndMonth: String {
-        return dayAndMonthFormatter.stringFromDate(self)
+        return dayAndMonthFormatter.string(from: self)
     }
 
     public var asRailsDateTimeString: String {
-        return railsDateTimeFormatter.stringFromDate(self)
+        return railsDateTimeFormatter.string(from: self)
     }
 
     public var asIso8601DateTimeString: String {
-        return iso8601DateTimeFormatter.stringFromDate(self)
+        return iso8601DateTimeFormatter.string(from: self)
     }
 
     public var asSQLiteDateTimeString: String {
-        return railsDateTimeFormatter.stringFromDate(self)
+        return railsDateTimeFormatter.string(from: self)
     }
 
     public var asRailsDateString: String {
-        return railsDateFormatter.stringFromDate(self)
+        return railsDateFormatter.string(from: self)
     }
 
     public var asSQLiteDateString: String {
-        return railsDateFormatter.stringFromDate(self)
+        return railsDateFormatter.string(from: self)
     }
 
     public var asAuthToken: String {
-        return authTokenDate.stringFromDate(self)
+        return authTokenDate.string(from: self)
     }
 
     public var asPreciseTime: String {
-        return preciseTimeFormatter.stringFromDate(self)
+        return preciseTimeFormatter.string(from: self)
     }
 }
 
 extension String {
-    public var railsDateTime: NSDate? {
-        return railsDateTimeFormatter.dateFromString(self)
+    public var railsDateTime: Date? {
+        return railsDateTimeFormatter.date(from: self)
     }
 
-    public var railsDate: NSDate? {
-        return railsDateFormatter.dateFromString(self)
+    public var railsDate: Date? {
+        return railsDateFormatter.date(from: self)
     }
 
-    public var iso8601DateTime: NSDate? {
-        return iso8601DateTimeFormatter.dateFromString(self)
+    public var iso8601DateTime: Date? {
+        return iso8601DateTimeFormatter.date(from: self)
     }
 }

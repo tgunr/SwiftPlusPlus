@@ -23,13 +23,13 @@ public protocol EventType: class {
     Because the EventCenter is type safe, when registering a callback, the types specified by the event
     can be inferred and enforced by the compiler.
 */
-public class EventCenter {
-    private var _observations = [String:CallbackCollection]()
+open class EventCenter {
+    fileprivate var _observations = [String:CallbackCollection]()
 
     /**
         The main event center
     */
-    public class func defaultCenter() -> EventCenter {
+    open class func defaultCenter() -> EventCenter {
         return Static.DefaultInsance
     }
     
@@ -43,13 +43,13 @@ public class EventCenter {
         - parameter event: the event to trigger
         - parameter params: the parameters to trigger the event with
     */
-    public func triggerEvent<E: EventType>(event: E.Type, params: E.CallbackParam) {
+    open func triggerEvent<E: EventType>(_ event: E.Type, params: E.CallbackParam) {
         let key = NSStringFromClass(event)
         if let callbackCollection = self._observations[key] {
             for (_, callbacks) in callbackCollection {
                 for spec in callbacks {
                     if let operationQueue = spec.operationQueue {
-                        operationQueue.addOperationWithBlock {
+                        operationQueue.addOperation {
                             (spec.callback as! (E.CallbackParam) -> ())(params)
                         }
                     }
@@ -68,7 +68,7 @@ public class EventCenter {
         - parameter event: the event to observe
         - parameter callback: callback to be called when the event is triggered
     */
-    public func addObserver<E: EventType>(observer: AnyObject, forEvent event: E.Type, callback: (E.CallbackParam) -> ()) {
+    open func addObserver<E: EventType>(_ observer: AnyObject, forEvent event: E.Type, callback: @escaping (E.CallbackParam) -> ()) {
         self.addObserver(observer, forEvent: event, inQueue: nil, callback: callback)
     }
     
@@ -80,7 +80,7 @@ public class EventCenter {
         - parameter inQueue: queue to call callback in (nil indicates the callback should be called on the same queue as the trigger)
         - parameter callback: callback to be called when the event is triggered
     */
-    public func addObserver<E: EventType>(observer: AnyObject, forEvent event: E.Type, inQueue: NSOperationQueue?, callback: (E.CallbackParam) -> ()) {
+    open func addObserver<E: EventType>(_ observer: AnyObject, forEvent event: E.Type, inQueue: OperationQueue?, callback: @escaping (E.CallbackParam) -> ()) {
         let key = NSStringFromClass(event)
 
         if self._observations[key] == nil {
@@ -95,7 +95,7 @@ public class EventCenter {
         - parameter observer: observing object passed in when registering the callback originally
         - parameter event: the event to remove the observer for
     */
-    public func removeObserver<E: EventType>(observer: AnyObject, forEvent event: E.Type?) {
+    open func removeObserver<E: EventType>(_ observer: AnyObject, forEvent event: E.Type?) {
         if let event = event {
             let key = NSStringFromClass(event)
             if var callbackCollection = self._observations[key] {
@@ -110,7 +110,7 @@ public class EventCenter {
     
         - parameter observer: observing object passed in when registering the callback originally
     */
-    public func removeObserverForAllEvents(observer: AnyObject) {
+    open func removeObserverForAllEvents(_ observer: AnyObject) {
         for (key, var callbackCollection) in self._observations {
             removecallbacksForObserver(observer, fromHandlerCollection: &callbackCollection)
             self._observations[key] = callbackCollection
@@ -119,16 +119,16 @@ public class EventCenter {
 }
 
 private extension EventCenter {
-    private typealias Callback = Any
-    private typealias CallbackSpec = (callback: Callback, operationQueue: NSOperationQueue?)
-    private typealias CallbackCollection = [(observer: WeakWrapper, callbacks: [CallbackSpec])]
+    typealias Callback = Any
+    typealias CallbackSpec = (callback: Callback, operationQueue: OperationQueue?)
+    typealias CallbackCollection = [(observer: WeakWrapper, callbacks: [CallbackSpec])]
 
-    private struct Static {
+    struct Static {
         static var DefaultInsance = EventCenter()
     }
 }
 
-private func addHandler(handler: EventCenter.CallbackSpec, inout toHandlerCollection collection: EventCenter.CallbackCollection, forObserver observer: AnyObject) {
+private func addHandler(_ handler: EventCenter.CallbackSpec, toHandlerCollection collection: inout EventCenter.CallbackCollection, forObserver observer: AnyObject) {
     var found = false
     var index = 0
     for (possibleObserver, var callbacks) in collection {
@@ -146,11 +146,11 @@ private func addHandler(handler: EventCenter.CallbackSpec, inout toHandlerCollec
     }
 }
 
-private func removecallbacksForObserver(observer: AnyObject, inout fromHandlerCollection collection: EventCenter.CallbackCollection) {
+private func removecallbacksForObserver(_ observer: AnyObject, fromHandlerCollection collection: inout EventCenter.CallbackCollection) {
     var index = 0
     for (possibleObserver, _) in collection {
         if possibleObserver.value === observer {
-            collection.removeAtIndex(index)
+            collection.remove(at: index)
         }
         index += 1
     }

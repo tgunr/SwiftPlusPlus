@@ -9,10 +9,10 @@
 import UIKit
 
 struct MenuItem {
-    enum Type {
-        case Email(address: String, subject: String)
-        case ExternalURL(address: String)
-        case HTML(content: String)
+    enum `Type` {
+        case email(address: String, subject: String)
+        case externalURL(address: String)
+        case html(content: String)
     }
 
     let displayText: () -> String

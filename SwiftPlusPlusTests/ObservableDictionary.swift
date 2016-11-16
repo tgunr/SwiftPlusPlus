@@ -7,16 +7,16 @@
 //
 
 public final class ObservableDictionary<Key: Hashable, Value> {
-    public typealias DidChange = (oldValue: Value, newValue: Value, at: Key) -> ()
-    public typealias DidInsert = (Value, at: Key) -> ()
-    public typealias DidRemove = (Value, at: Key) -> ()
-    public typealias DidRemoveAll = (oldValues: [Key:Value]) -> ()
+    public typealias DidChange = (_ oldValue: Value, _ newValue: Value, _ at: Key) -> ()
+    public typealias DidInsert = (Value, _ at: Key) -> ()
+    public typealias DidRemove = (Value, _ at: Key) -> ()
+    public typealias DidRemoveAll = (_ oldValues: [Key:Value]) -> ()
     public typealias ObservationHandlers = (changed: DidChange?, insert: DidInsert?, remove: DidRemove?, removeAll: DidRemoveAll?)
 
-    private var observers: [(observer: WeakWrapper, handlers: [ObservationHandlers])] = []
-    private var onHasObserversChanged: ((Bool) -> ())?
+    fileprivate var observers: [(observer: WeakWrapper, handlers: [ObservationHandlers])] = []
+    fileprivate var onHasObserversChanged: ((Bool) -> ())?
 
-    public private(set) var values: [Key:Value]
+    public fileprivate(set) var values: [Key:Value]
 
     public init(_ values: [Key:Value], onHasObserversChanged: ((Bool) -> ())? = nil) {
         self.values = values
@@ -24,7 +24,7 @@ public final class ObservableDictionary<Key: Hashable, Value> {
     }
 
     public func add(
-        observer observer: AnyObject,
+        observer: AnyObject,
         onDidChange: DidChange? = nil,
         onDidInsert: DidInsert? = nil,
         onDidRemove: DidRemove? = nil,
@@ -48,9 +48,9 @@ public final class ObservableDictionary<Key: Hashable, Value> {
         }
     }
 
-    public func remove(observer observer: AnyObject) {
+    public func remove(observer: AnyObject) {
         if let index = self.index(ofObserver: observer) {
-            self.observers.removeAtIndex(index)
+            self.observers.remove(at: index)
             if self.observers.count == 0 {
                 self.onHasObserversChanged?(false)
             }
@@ -66,12 +66,12 @@ public final class ObservableDictionary<Key: Hashable, Value> {
                 self.values[key] = newValue
                 if let newValue = newValue {
                     self.executeWithAllHandlers({ handler in
-                        handler.changed?(oldValue: oldValue, newValue: newValue, at: key)
+                        handler.changed?(oldValue, newValue, key)
                     })
                 }
                 else {
                     self.executeWithAllHandlers({ handler in
-                        handler.remove?(oldValue, at: key)
+                        handler.remove?(oldValue, key)
                     })
                 }
             }
@@ -79,7 +79,7 @@ public final class ObservableDictionary<Key: Hashable, Value> {
                 self.values[key] = newValue
                 if let newValue = newValue {
                     self.executeWithAllHandlers({ handler in
-                        handler.insert?(newValue, at: key)
+                        handler.insert?(newValue, key)
                     })
                 }
             }
@@ -90,7 +90,7 @@ public final class ObservableDictionary<Key: Hashable, Value> {
         let oldValues = self.values
         self.values.removeAll()
         self.executeWithAllHandlers({ handler in
-            handler.removeAll?(oldValues: oldValues)
+            handler.removeAll?(oldValues)
         })
     }
 }
@@ -107,10 +107,10 @@ private extension ObservableDictionary {
         return nil
     }
 
-    func executeWithAllHandlers(callback: (handlers: ObservationHandlers) -> ()) {
+    func executeWithAllHandlers(_ callback: (_ handlers: ObservationHandlers) -> ()) {
         for (_, handlers) in self.observers {
             for handler in handlers {
-                callback(handlers: handler)
+                callback(handler)
             }
         }
     }

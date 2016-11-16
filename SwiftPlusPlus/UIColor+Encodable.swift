@@ -13,14 +13,14 @@ public struct Color: EncodableType {
         self.color = color
     }
 
-    private struct Keys {
+    fileprivate struct Keys {
         class red: CoderKey<Float> {}
         class green: CoderKey<Float> {}
         class blue: CoderKey<Float> {}
         class alpha: CoderKey<Float> {}
     }
 
-    public func encode(encoder: EncoderType) {
+    public func encode(_ encoder: EncoderType) {
         var red: CGFloat = 0
         var green: CGFloat = 0
         var blue: CGFloat = 0

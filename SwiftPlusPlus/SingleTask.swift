@@ -8,7 +8,7 @@
 
 public protocol SingleTask: class {
     var identifier: String { get }
-    var scheduledFor: NSDate? { get set }
+    var scheduledFor: Date? { get set }
 
     func perform()
 }
@@ -19,12 +19,12 @@ extension SingleTask {
     }
 }
 
-extension SingleTask {
-    public func schedule(at date: NSDate) {
-        TaskService.singleton.schedule(singleTask: self, at: date)
-    }
-
-    public func unschedule() {
-        TaskService.singleton.unschedule(singleTask: self)
-    }
-}
+//extension SingleTask {
+//    public func schedule(at date: Date) {
+//        TaskService.singleton.schedule(periodicTask: self as! PeriodicTask, with: date)
+//    }
+//
+//    public func unschedule() {
+//        TaskService.singleton.unschedule(singleTask: self)
+//    }
+//}

@@ -17,41 +17,41 @@ class ZoomThroughTransition: ViewControllerTransition {
         super.init()
     }
 
-    override func performAnimated(animated: Bool, onComplete: (() -> Void)?) {
+    override func performAnimated(_ animated: Bool, onComplete: (() -> Void)?) {
         let zoomThroughFrame = zoomThroughView.frame
         let sourceView = self.sourceViewController.view
         let destinationView = self.destinationViewController.view
-        let windowBounds = UIApplication.sharedApplication().keyWindow!.bounds
+        let windowBounds = UIApplication.shared.keyWindow!.bounds
 
-        destinationView.frame = sourceView.frame
-        sourceView.superview!.insertSubview(destinationView, belowSubview: sourceView)
+        destinationView?.frame = (sourceView?.frame)!
+        sourceView?.superview!.insertSubview(destinationView!, belowSubview: sourceView!)
 
-        UIView.animateWithDuration(0.3,
+        UIView.animate(withDuration: 0.3,
             animations: {
                 let scale = windowBounds.height / zoomThroughFrame.height
                 let yInView: CGFloat
                 if #available(iOS 8.0, *) {
-                    yInView = sourceView.convertPoint(zoomThroughFrame.origin, fromCoordinateSpace: self.zoomThroughView.superview!).y
+                    yInView = (sourceView?.convert(zoomThroughFrame.origin, from: self.zoomThroughView.superview!).y)!
                 } else {
-                    yInView = sourceView.convertPoint(zoomThroughFrame.origin, fromView: self.zoomThroughView.superview!).y
+                    yInView = (sourceView?.convert(zoomThroughFrame.origin, from: self.zoomThroughView.superview!).y)!
                 }
-                let translateForTop = sourceView.bounds.height * (scale - 1) / 2
+                let translateForTop = (sourceView?.bounds.height)! * (scale - 1) / 2
                 let translateForButton = -yInView * scale
                 let translate = translateForTop + translateForButton
 
-                var transform = CGAffineTransformMakeTranslation(0, translate)
-                transform = CGAffineTransformScale(transform, scale, scale)
+                var transform = CGAffineTransform(translationX: 0, y: translate)
+                transform = transform.scaledBy(x: scale, y: scale)
 
-                sourceView.transform = transform
-                sourceView.alpha = 0
+                sourceView?.transform = transform
+                sourceView?.alpha = 0
             },
             completion: { _ in
-                self.sourceViewController.presentViewController(self.destinationViewController, animated: false, completion: onComplete)
+                self.sourceViewController.present(self.destinationViewController, animated: false, completion: onComplete)
             }
         )
     }
 
-    override func reverse(animated: Bool, onComplete: (() -> Void)?) {
+    override func reverse(_ animated: Bool, onComplete: (() -> Void)?) {
         guard self.shouldZoomOut else {
             super.reverse(animated, onComplete: onComplete)
             return
@@ -60,15 +60,15 @@ class ZoomThroughTransition: ViewControllerTransition {
         let sourceView = self.sourceViewController.view
         let destinationView = self.destinationViewController.view
 
-        UIApplication.sharedApplication().keyWindow!.insertSubview(sourceView, aboveSubview: destinationView)
+        UIApplication.shared.keyWindow!.insertSubview(sourceView!, aboveSubview: destinationView!)
 
-        UIView.animateWithDuration(0.3,
+        UIView.animate(withDuration: 0.3,
             animations: {
-                sourceView.transform = CGAffineTransformIdentity
-                sourceView.alpha = 1
+                sourceView?.transform = CGAffineTransform.identity
+                sourceView?.alpha = 1
             },
             completion: { completed in
-                self.destinationViewController.dismissViewControllerAnimated(false, completion: nil)
+                self.destinationViewController.dismiss(animated: false, completion: nil)
             }
         )
     }

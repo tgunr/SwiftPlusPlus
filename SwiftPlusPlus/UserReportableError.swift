@@ -6,7 +6,7 @@
 //  Copyright © 2016 Drewag LLC. All rights reserved.
 //
 
-public protocol UserReportableError: ErrorType {
+public protocol UserReportableError: Error {
     var alertTitle: String {get}
     var alertMessage: String {get}
     var otherInfo: [String:String]? {get}

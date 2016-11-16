@@ -16,10 +16,10 @@ public struct Angle: Equatable, Comparable {
 
     public static let zero = Angle(radians: 0 as Float)
 
-    private let value: Float
-    private let unit: Unit
+    fileprivate let value: Float
+    fileprivate let unit: Unit
 
-    private init(value: Float, unit: Unit) {
+    fileprivate init(value: Float, unit: Unit) {
         self.value = value
         self.unit = unit
     }
@@ -84,7 +84,7 @@ public struct Angle: Equatable, Comparable {
         return CGFloat(self.sine() as Float)
     }
 
-    private static func normalized(value value: Float, with unit: Unit) -> Float {
+    fileprivate static func normalized(value: Float, with unit: Unit) -> Float {
         switch unit {
         case .degrees:
             if value < 0 {
@@ -164,7 +164,7 @@ public func +(lhs: Angle, rhs: Angle) -> Angle {
     }
 }
 
-public func +=(inout lhs: Angle, rhs: Angle) {
+public func +=(lhs: inout Angle, rhs: Angle) {
     if lhs.unit == rhs.unit {
         lhs = Angle(value: Angle.normalized(value: lhs.value + rhs.value, with: lhs.unit), unit: lhs.unit)
     }
@@ -182,7 +182,7 @@ public func -(lhs: Angle, rhs: Angle) -> Angle {
     }
 }
 
-public func -=(inout lhs: Angle, rhs: Angle) {
+public func -=(lhs: inout Angle, rhs: Angle) {
     if lhs.unit == rhs.unit {
         lhs = Angle(value: Angle.normalized(value: lhs.value - rhs.value, with: lhs.unit), unit: lhs.unit)
     }

@@ -26,7 +26,7 @@
 /**
     Options for observing an observable
 */
-public struct ObservationOptions: BitwiseOperationsType, BooleanType  {
+public struct ObservationOptions: BitwiseOperations  {
     let rawValue: UInt
 
     public static var None: ObservationOptions { return ObservationOptions(rawValue: 0) }
@@ -52,8 +52,8 @@ public struct ObservationOptions: BitwiseOperationsType, BooleanType  {
     Store a value that can be observed by external objects
 */
 public final class Observable<T> {
-    public typealias NewValueHandler = (newValue: T) -> ()
-    public typealias ChangeValueHandler = (oldValue: T?, newValue: T) -> ()
+    public typealias NewValueHandler = (_ newValue: T) -> ()
+    public typealias ChangeValueHandler = (_ oldValue: T?, _ newValue: T) -> ()
     typealias Handlers = (new: NewValueHandler?, change: ChangeValueHandler?)
     typealias HandlerSpec = (options: ObservationOptions, handlers: Handlers)
 
@@ -66,21 +66,21 @@ public final class Observable<T> {
         didSet {
             var handlersToCall: [Handlers] = []
 
-            for observerIndex in Array((0..<self._observers.count).reverse()) {
+            for observerIndex in Array((0..<self._observers.count).reversed()) {
                 let observer = self._observers[observerIndex].observer
                 var handlers = self._observers[observerIndex].handlers
 
                 if observer.value != nil {
-                    for handlerIndex in Array((0..<handlers.count).reverse()) {
+                    for handlerIndex in Array((0..<handlers.count).reversed()) {
                         let handlerSpec = handlers[handlerIndex]
                         handlersToCall.append(handlerSpec.handlers)
-                        if handlerSpec.options & ObservationOptions.OnlyOnce {
-                            handlers.removeAtIndex(handlerIndex)
+                        if (handlerSpec.options & ObservationOptions.OnlyOnce).boolValue {
+                            handlers.remove(at: handlerIndex)
                         }
                     }
                     
                     if handlers.count == 0 {
-                        self._observers.removeAtIndex(observerIndex)
+                        self._observers.remove(at: observerIndex)
                     }
                     else {
                         self._observers[observerIndex] = (observer: observer, handlers: handlers)
@@ -88,14 +88,14 @@ public final class Observable<T> {
                 }
                 else {
                     if let index = self._indexOfObserver(observer) {
-                        self._observers.removeAtIndex(index)
+                        self._observers.remove(at: index)
                     }
                 }
             }
 
             for handlers in handlersToCall {
-                handlers.change?(oldValue: oldValue, newValue: value)
-                handlers.new?(newValue: value)
+                handlers.change?(oldValue, value)
+                handlers.new?(value)
             }
         }
     }
@@ -122,11 +122,11 @@ public final class Observable<T> {
         - parameter observer: observing object to be referenced later to remove the hundler
         - parameter handler: callback to be called when value is changed
     */
-    public func addNewObserver(observer: AnyObject, handler: NewValueHandler) {
+    public func addNewObserver(_ observer: AnyObject, handler: @escaping NewValueHandler) {
         self.addNewObserver(observer, options: ObservationOptions.None, handler: handler)
     }
 
-    public func addChangeObserver(observer: AnyObject, handler: ChangeValueHandler) {
+    public func addChangeObserver(_ observer: AnyObject, handler: @escaping ChangeValueHandler) {
         self.addChangeObserver(observer, options: ObservationOptions.None, handler: handler)
     }
 
@@ -137,12 +137,12 @@ public final class Observable<T> {
         - parameter options: observation options
         - parameter handler: callback to be called when value is changed
     */
-    public func addNewObserver(observer: AnyObject, options: ObservationOptions, handler: NewValueHandler) {
+    public func addNewObserver(_ observer: AnyObject, options: ObservationOptions, handler: @escaping NewValueHandler) {
         let handlers: Handlers = (new: handler, change: nil)
         self.addObserver(observer, options: options, handlers: handlers)
     }
 
-    public func addChangeObserver(observer: AnyObject, options: ObservationOptions, handler: ChangeValueHandler) {
+    public func addChangeObserver(_ observer: AnyObject, options: ObservationOptions, handler: @escaping ChangeValueHandler) {
         let handlers: Handlers = (new: nil, change: handler)
         self.addObserver(observer, options: options, handlers: handlers)
     }
@@ -152,9 +152,9 @@ public final class Observable<T> {
 
         - parameter observer: the observer to remove handlers from
     */
-    public func removeObserver(observer: AnyObject) {
+    public func removeObserver(_ observer: AnyObject) {
         if let index = self._indexOfObserver(observer) {
-            self._observers.removeAtIndex(index)
+            self._observers.remove(at: index)
             if self._observers.count == 0 {
                 self._onHasObserverChanged?(false)
             }
@@ -163,12 +163,12 @@ public final class Observable<T> {
 
     // MARK: Private Properties
 
-    private var _observers: [(observer: WeakWrapper, handlers: [HandlerSpec])] = []
-    private var _onHasObserverChanged: ((Bool) -> ())?
+    fileprivate var _observers: [(observer: WeakWrapper, handlers: [HandlerSpec])] = []
+    fileprivate var _onHasObserverChanged: ((Bool) -> ())?
 }
 
 private extension Observable {
-    func _indexOfObserver(observer: AnyObject) -> Int? {
+    func _indexOfObserver(_ observer: AnyObject) -> Int? {
         var index: Int = 0
         for (possibleObserver, _) in self._observers {
             if possibleObserver.value === observer {
@@ -179,7 +179,7 @@ private extension Observable {
         return nil
     }
 
-    func addObserver(observer: AnyObject, options: ObservationOptions, handlers: Handlers) {
+    func addObserver(_ observer: AnyObject, options: ObservationOptions, handlers: Handlers) {
         if let index = self._indexOfObserver(observer) {
             // since the observer exists, add the handler to the existing array
             self._observers[index].handlers.append((options: options, handlers: handlers))
@@ -194,9 +194,9 @@ private extension Observable {
             }
         }
 
-        if (options & ObservationOptions.Initial) {
-            handlers.change?(oldValue: nil, newValue: self.value)
-            handlers.new?(newValue: self.value)
+        if (options & ObservationOptions.Initial).boolValue {
+            handlers.change?(nil, self.value)
+            handlers.new?(self.value)
         }
     }
 }

@@ -10,9 +10,9 @@ import UIKit
 import ObjectiveC
 
 class Alert: NSObject {
-    private let onButtonClicked: (buttonTitle: String?, textFieldText: String?) -> ()
+    fileprivate let onButtonClicked: (_ buttonTitle: String?, _ textFieldText: String?) -> ()
 
-    private init(onButtonClicked: (buttonTitle: String?, textFieldText: String?) -> ()) {
+    fileprivate init(onButtonClicked: @escaping (_ buttonTitle: String?, _ textFieldText: String?) -> ()) {
         self.onButtonClicked = onButtonClicked
 
         super.init()
@@ -28,34 +28,34 @@ public final class AlertAction {
         self.handler = handler
     }
 
-    public static func action(name: String, handler: (() -> ())? = nil) -> AlertAction {
+    public static func action(_ name: String, handler: (() -> ())? = nil) -> AlertAction {
         return AlertAction(name: name, handler: handler)
     }
 }
 
 public final class TextAction {
     let name: String
-    let handler: ((text: String) -> ())?
+    let handler: ((_ text: String) -> ())?
 
-    init(name: String, handler: ((text: String) -> ())?) {
+    init(name: String, handler: ((_ text: String) -> ())?) {
         self.name = name
         self.handler = handler
     }
 
-    public static func action(name: String, handler: ((text: String) -> ())? = nil) -> TextAction {
+    public static func action(_ name: String, handler: ((_ text: String) -> ())? = nil) -> TextAction {
         return TextAction(name: name, handler: handler)
     }
 }
 
 extension Alert: UIAlertViewDelegate {
-    @available(iOS, introduced=2.0, deprecated=9.0, message="Use showAlertController instead")
-    func alertView(alertView: UIAlertView, clickedButtonAtIndex: Int) {
-        let title = alertView.buttonTitleAtIndex(clickedButtonAtIndex)
+    @available(iOS, introduced: 2.0, deprecated: 9.0, message: "Use showAlertController instead")
+    func alertView(_ alertView: UIAlertView, clickedButtonAt clickedButtonAtIndex: Int) {
+        let title = alertView.buttonTitle(at: clickedButtonAtIndex)
         var textFieldText: String?
-        if let textField = alertView.textFieldAtIndex(0) {
+        if let textField = alertView.textField(at: 0) {
             textFieldText = textField.text
         }
-        self.onButtonClicked(buttonTitle: title, textFieldText: textFieldText)
+        self.onButtonClicked(title, textFieldText)
     }
 }
 
@@ -74,8 +74,8 @@ extension UIViewController {
         other: [AlertAction] = []
         )
     {
-        func onTapped(buttonTitle: String?, textFieldText: String?) {
-            if let action = cancel where action.name == buttonTitle {
+        func onTapped(_ buttonTitle: String?, textFieldText: String?) {
+            if let action = cancel, action.name == buttonTitle {
                 action.handler?()
                 return
             }
@@ -125,14 +125,14 @@ extension UIViewController {
         other: [TextAction] = []
     )
     {
-        func onTapped(buttonTitle: String?, textFieldText: String?) {
-            if let action = cancel where action.name == buttonTitle {
-                action.handler?(text: textFieldText ?? "")
+        func onTapped(_ buttonTitle: String?, textFieldText: String?) {
+            if let action = cancel, action.name == buttonTitle {
+                action.handler?(textFieldText ?? "")
                 return
             }
             for action in other {
                 if action.name == buttonTitle {
-                    action.handler?(text: textFieldText ?? "")
+                    action.handler?(textFieldText ?? "")
                     return
                 }
             }
@@ -173,15 +173,15 @@ private extension Alert {
         static var Delegate = "Delegate"
     }
 
-    @available(iOS, introduced=2.0, deprecated=9.0, message="Use showAlertController instead")
+    @available(iOS, introduced: 2.0, deprecated: 9.0, message: "Use showAlertController instead")
     class func showAlertView(
-        title: String,
+        _ title: String,
         message: String,
         cancelButtonTitle: String?,
         otherButtonTitles: [String]?,
         textFieldPlaceholder: String? = nil,
         textFieldDefault: String? = nil,
-        onButtonClicked: ((buttonTitle: String?, textFieldText: String?) -> ())?
+        onButtonClicked: ((_ buttonTitle: String?, _ textFieldText: String?) -> ())?
         )
     {
         var delegate: UIAlertViewDelegate?
@@ -192,11 +192,11 @@ private extension Alert {
         let alert = UIAlertView(title: title, message: message, delegate: delegate, cancelButtonTitle: cancelButtonTitle)
 
         if textFieldPlaceholder != nil {
-            alert.alertViewStyle = .PlainTextInput
+            alert.alertViewStyle = .plainTextInput
         }
 
         for otherButtonTitle in otherButtonTitles ?? [] {
-            alert.addButtonWithTitle(otherButtonTitle)
+            alert.addButton(withTitle: otherButtonTitle)
         }
 
         if let delegate = delegate {
@@ -213,30 +213,30 @@ private extension Alert {
 
     @available(iOS 8.0, *)
     class func showAlertController(
-        title: String,
+        _ title: String,
         message: String,
         cancelButtonTitle: String?,
         otherButtonTitles: [String]?,
         textFieldPlaceholder: String?,
         textFieldDefault: String? = nil,
-        onButtonClicked: ((buttonTitle: String?, textFieldText: String?) -> ())?,
+        onButtonClicked: ((_ buttonTitle: String?, _ textFieldText: String?) -> ())?,
         fromViewController: UIViewController
         )
     {
-        let alert = UIAlertController(title: title, message: message, preferredStyle: .Alert)
+        let alert = UIAlertController(title: title, message: message, preferredStyle: .alert)
 
         var promptTextField: UITextField?
         if let placeholder = textFieldPlaceholder {
-            alert.addTextFieldWithConfigurationHandler { textField in
+            alert.addTextField { textField in
                 textField.placeholder = placeholder
                 textField.text = textFieldDefault
                 promptTextField = textField
             }
         }
 
-        func handler(action: UIAlertAction!) {
+        func handler(_ action: UIAlertAction!) {
             if let block = onButtonClicked {
-                block(buttonTitle: action.title, textFieldText: promptTextField?.text)
+                block(action.title, promptTextField?.text)
             }
         }
 
@@ -244,18 +244,18 @@ private extension Alert {
         if let cancelButtonTitle = cancelButtonTitle {
             alert.addAction(UIAlertAction(
                 title: cancelButtonTitle,
-                style: .Cancel,
+                style: .cancel,
                 handler: handler
                 ))
         }
         for otherTitle in otherButtonTitles ?? [] {
             alert.addAction(UIAlertAction(
                 title: otherTitle,
-                style: .Default,
+                style: .default,
                 handler: handler
                 ))
         }
 
-        fromViewController.presentViewController(alert, animated: true, completion: nil)
+        fromViewController.present(alert, animated: true, completion: nil)
     }
 }

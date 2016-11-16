@@ -14,15 +14,15 @@ var ActionBlockKey: UInt8 = 0
 private class ActionBlockWrapper: NSObject {
     let block: () -> ()
 
-    init(block: () -> ()) {
+    init(block: @escaping () -> ()) {
         self.block = block
     }
 }
 
 extension UIButton {
-    public func addBlock(forControlEvents events: UIControlEvents = .TouchUpInside, block: () -> ()) {
+    public func addBlock(forControlEvents events: UIControlEvents = .touchUpInside, block: @escaping () -> ()) {
         objc_setAssociatedObject(self, &ActionBlockKey, ActionBlockWrapper(block: block), objc_AssociationPolicy.OBJC_ASSOCIATION_RETAIN_NONATOMIC)
-        self.addTarget(self, action: #selector(handleBlockCall), forControlEvents: events)
+        self.addTarget(self, action: #selector(handleBlockCall), for: events)
     }
 
     public func handleBlockCall() {

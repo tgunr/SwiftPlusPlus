@@ -12,14 +12,14 @@ import ObjectiveC
 class ViewControllerTransition: NSObject {
     var sourceViewController: UIViewController!
     var destinationViewController: UIViewController!
-    private var onTransitioningBack: (() -> ())?
+    fileprivate var onTransitioningBack: (() -> ())?
 
-    func performAnimated(animated: Bool, onComplete: (() -> Void)?) {
-        self.sourceViewController.presentViewController(self.destinationViewController, animated: animated, completion: onComplete)
+    func performAnimated(_ animated: Bool, onComplete: (() -> Void)?) {
+        self.sourceViewController.present(self.destinationViewController, animated: animated, completion: onComplete)
     }
 
-    func reverse(animated: Bool, onComplete: (() -> Void)?) {
-        self.sourceViewController.dismissViewControllerAnimated(animated, completion: onComplete)
+    func reverse(_ animated: Bool, onComplete: (() -> Void)?) {
+        self.sourceViewController.dismiss(animated: animated, completion: onComplete)
     }
 }
 
@@ -28,30 +28,30 @@ class NavigationPushTransition: ViewControllerTransition, UINavigationController
     var reverseOnComplete: (() -> Void)?
     var manuallyTriggeredReverse = false
 
-    override func performAnimated(animated: Bool, onComplete: (() -> Void)?) {
+    override func performAnimated(_ animated: Bool, onComplete: (() -> Void)?) {
         self.performOnComplete = onComplete
         self.sourceViewController.navigationController!.pushViewController(self.destinationViewController, animated: true)
         self.sourceViewController.navigationController!.delegate = self
     }
 
-    override func reverse(animated: Bool, onComplete: (() -> Void)?) {
+    override func reverse(_ animated: Bool, onComplete: (() -> Void)?) {
         self.manuallyTriggeredReverse = true
         self.reverseOnComplete = onComplete
-        self.sourceViewController.navigationController!.popViewControllerAnimated(animated)
+        self.sourceViewController.navigationController!.popViewController(animated: animated)
     }
 
-    func navigationController(navigationController: UINavigationController, willShowViewController viewController: UIViewController, animated: Bool) {
-        if let block = self.onTransitioningBack where viewController == self.sourceViewController && !self.manuallyTriggeredReverse {
+    func navigationController(_ navigationController: UINavigationController, willShow viewController: UIViewController, animated: Bool) {
+        if let block = self.onTransitioningBack, viewController == self.sourceViewController && !self.manuallyTriggeredReverse {
             block()
         }
     }
 
-    func navigationController(navigationController: UINavigationController, didShowViewController viewController: UIViewController, animated: Bool) {
-        if let block = self.performOnComplete where viewController == self.destinationViewController {
+    func navigationController(_ navigationController: UINavigationController, didShow viewController: UIViewController, animated: Bool) {
+        if let block = self.performOnComplete, viewController == self.destinationViewController {
             self.performOnComplete = nil
             block()
         }
-        else if let block = self.reverseOnComplete where viewController == self.sourceViewController {
+        else if let block = self.reverseOnComplete, viewController == self.sourceViewController {
             self.reverseOnComplete = nil
             block()
         }
@@ -64,7 +64,7 @@ extension UIViewController {
     }
 
     func transitionToViewController(
-        viewController: UIViewController,
+        _ viewController: UIViewController,
         animated: Bool = true,
         embeddedInNavigationController: Bool = false,
         transition: ViewControllerTransition = ViewControllerTransition(),
@@ -90,7 +90,7 @@ extension UIViewController {
         )
     }
 
-    func transitionBackAnimated(animated: Bool, onComplete: (() -> Void)?) {
+    func transitionBackAnimated(_ animated: Bool, onComplete: (() -> Void)?) {
         var transition = objc_getAssociatedObject(self, &Keys.Transition) as? ViewControllerTransition
         if transition == nil {
             if let navController = self.navigationController {
@@ -118,15 +118,15 @@ extension UIViewController {
 // MARK: Convenience
 
 extension UIViewController {
-    @IBAction func didTapBackButton(sender: AnyObject) {
+    @IBAction func didTapBackButton(_ sender: AnyObject) {
         self.transitionBackAnimated(true, onComplete: nil)
     }
 
-    func backBarButtonSystemItemWithType(type: UIBarButtonSystemItem) -> UIBarButtonItem {
+    func backBarButtonSystemItemWithType(_ type: UIBarButtonSystemItem) -> UIBarButtonItem {
         return UIBarButtonItem(barButtonSystemItem: type, target: self, action: #selector(didTapBackButton(_:)))
     }
 
-    func backBarButtonItemWithTitle(title: String, style: UIBarButtonItemStyle) -> UIBarButtonItem {
+    func backBarButtonItemWithTitle(_ title: String, style: UIBarButtonItemStyle) -> UIBarButtonItem {
         return UIBarButtonItem(title: title, style: style, target: self, action: #selector(didTapBackButton(_:)))
     }
 }

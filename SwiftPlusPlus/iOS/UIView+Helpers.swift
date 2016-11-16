@@ -10,7 +10,7 @@ import Foundation
 
 extension UIView {
     public var firstResponder: UIView? {
-        if self.isFirstResponder() {
+        if self.isFirstResponder {
             return self
         }
 

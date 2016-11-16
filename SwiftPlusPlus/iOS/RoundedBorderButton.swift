@@ -9,7 +9,7 @@
 import UIKit
 
 @IBDesignable class RoundedBorderButton: UIButton {
-    @IBInspectable var borderColor: UIColor = UIColor.clearColor() {
+    @IBInspectable var borderColor: UIColor = UIColor.clear {
         didSet {
             self.update()
         }
@@ -30,8 +30,8 @@ import UIKit
 
 private extension RoundedBorderButton {
     func update() {
-        self.layer.borderWidth = 1 / UIScreen.mainScreen().scale
-        self.layer.borderColor = self.borderColor.CGColor
+        self.layer.borderWidth = 1 / UIScreen.main.scale
+        self.layer.borderColor = self.borderColor.cgColor
         self.layer.cornerRadius = self.cornerRadius
     }
 }

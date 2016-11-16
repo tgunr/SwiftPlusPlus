@@ -21,58 +21,58 @@ public protocol PeriodicTask {
     var isRunning: Bool { get set }
     var scheduleCount: Int { get set }
 
-    func perform(onComplete: (TaskResult) -> ())
+    func perform(_ onComplete: (TaskResult) -> ())
 }
 
 extension PeriodicTask {
-    private var defaultsKey: String {
+    fileprivate var defaultsKey: String {
         return "PeriodicTask-\(self.uniqueIdentifier)"
     }
 
-    var lastSuccessfulRun: NSDate? {
+    var lastSuccessfulRun: Date? {
         get {
-            let defaults = NSUserDefaults.standardUserDefaults()
-            let seconds = defaults.doubleForKey(self.defaultsKey)
+            let defaults = UserDefaults.standard
+            let seconds = defaults.double(forKey: self.defaultsKey)
             guard seconds > 0 else {
                 return nil
             }
 
-            return NSDate(timeIntervalSince1970: seconds)
+            return Date(timeIntervalSince1970: seconds)
         }
 
         set {
-            let defaults = NSUserDefaults.standardUserDefaults()
+            let defaults = UserDefaults.standard
 
             let seconds = newValue?.timeIntervalSince1970 ?? 0
-            defaults.setDouble(seconds, forKey: self.defaultsKey)
+            defaults.set(seconds, forKey: self.defaultsKey)
         }
     }
 
-    public func schedule(with period: TaskPeriod) {
-        TaskService.singleton.schedule(periodicTask: self, with: period)
-    }
+//    public func schedule(with period: TaskPeriod) {
+//        TaskService.singleton.schedule(periodicTask: self, with: period)
+//    }
 
     public func unschedule() {
         TaskService.singleton.unschedule(periodicTask: self)
     }
 
-    public func performManually() {
-        TaskService.singleton.manuallyPerform(periodicTask: self)
-    }
+//    public func performManually() {
+//        TaskService.singleton.manuallyPerform(periodicTask: self)
+//    }
 }
 
 extension TaskPeriod {
-    func contains(date: NSDate) -> Bool {
+    func contains(_ date: Date) -> Bool {
         switch self {
         case .interval(seconds: let seconds):
-            return NSDate().timeIntervalSinceDate(date) <= seconds
+            return Date().timeIntervalSince(date) <= seconds
         }
     }
 
-    func nextDate(after: NSDate) -> NSDate {
+    func nextDate(_ after: Date) -> Date {
         switch self {
         case .interval(seconds: let seconds):
-            return after.dateByAddingTimeInterval(seconds)
+            return after.addingTimeInterval(seconds)
         }
     }
 }

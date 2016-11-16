@@ -9,10 +9,10 @@
 import Foundation
 
 extension Array {
-    public mutating func insertElement(element: Element, assumingAlreadySortedWithSort isOrderedBefore: (Element, Element) -> (Bool)) -> Int {
+    public mutating func insertElement(_ element: Element, assumingAlreadySortedWithSort isOrderedBefore: (Element, Element) -> (Bool)) -> Int {
         for i in 0 ..< self.count {
             if !isOrderedBefore(self[i], element) {
-                self.insert(element, atIndex: i)
+                self.insert(element, at: i)
                 return i
             }
         }

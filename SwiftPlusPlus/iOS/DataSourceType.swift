@@ -11,57 +11,57 @@ import Foundation
 public protocol DataSourceType {
     associatedtype ValueType
     var count: Int {get}
-    func itemAtIndex(index: Int) -> ValueType
+    func itemAtIndex(_ index: Int) -> ValueType
 }
 
 class TableDataSource<D: DataSourceType>: NSObject, UITableViewDataSource {
-    typealias TableViewCellCreation = (indexPath: NSIndexPath, value: D.ValueType, tableView: UITableView) -> (UITableViewCell)
+    typealias TableViewCellCreation = (_ indexPath: IndexPath, _ value: D.ValueType, _ tableView: UITableView) -> (UITableViewCell)
 
     let source: D
     let tableCellCreation: TableViewCellCreation
 
-    init(source: D, tableCellCreation: TableViewCellCreation) {
+    init(source: D, tableCellCreation: @escaping TableViewCellCreation) {
         self.source = source
         self.tableCellCreation = tableCellCreation
     }
 
-    func tableView(tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
+    func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         return source.count
     }
 
-    func tableView(tableView: UITableView, cellForRowAtIndexPath indexPath: NSIndexPath) -> UITableViewCell {
+    func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         let item = self.source.itemAtIndex(indexPath.row)
-        return self.tableCellCreation(indexPath: indexPath, value: item, tableView: tableView)
+        return self.tableCellCreation(indexPath, item, tableView)
     }
 }
 
 class CollectionDataSource<D: DataSourceType>: NSObject, UICollectionViewDataSource {
-    typealias CollectionViewCellCreation = (indexPath: NSIndexPath, value: D.ValueType, collectionView: UICollectionView) -> (UICollectionViewCell)
+    typealias CollectionViewCellCreation = (_ indexPath: IndexPath, _ value: D.ValueType, _ collectionView: UICollectionView) -> (UICollectionViewCell)
 
     let source: D
     let collectionCellCreation: CollectionViewCellCreation
 
-    init(source: D, collectionCellCreation: CollectionViewCellCreation) {
+    init(source: D, collectionCellCreation: @escaping CollectionViewCellCreation) {
         self.source = source
         self.collectionCellCreation = collectionCellCreation
     }
 
-    func collectionView(collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
+    func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
         return self.source.count
     }
 
-    func collectionView(collectionView: UICollectionView, cellForItemAtIndexPath indexPath: NSIndexPath) -> UICollectionViewCell {
+    func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
         let item = self.source.itemAtIndex(indexPath.row)
-        return self.collectionCellCreation(indexPath: indexPath, value: item, collectionView: collectionView)
+        return self.collectionCellCreation(indexPath, item, collectionView)
     }
 }
 
 extension DataSourceType {
-    public func dataSourceWithCellCreation(cellCreation: (indexPath: NSIndexPath, value: ValueType, tableView: UITableView) -> UITableViewCell) -> UITableViewDataSource {
+    public func dataSourceWithCellCreation(_ cellCreation: @escaping (_ indexPath: IndexPath, _ value: ValueType, _ tableView: UITableView) -> UITableViewCell) -> UITableViewDataSource {
         return TableDataSource(source: self, tableCellCreation: cellCreation)
     }
 
-    public func dataSourceWithCellCreation(cellCreation: (indexPath: NSIndexPath, value: ValueType, collectionView: UICollectionView) -> UICollectionViewCell) -> UICollectionViewDataSource {
+    public func dataSourceWithCellCreation(_ cellCreation: @escaping (_ indexPath: IndexPath, _ value: ValueType, _ collectionView: UICollectionView) -> UICollectionViewCell) -> UICollectionViewDataSource {
         return CollectionDataSource(source: self, collectionCellCreation: cellCreation)
     }
 }

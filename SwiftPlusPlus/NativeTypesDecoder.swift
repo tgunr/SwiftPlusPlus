@@ -11,7 +11,7 @@ import Foundation
 public final class NativeTypesDecoder: DecoderType {
     let raw: AnyObject
 
-    public class func decodableTypeFromObject<E: EncodableType>(raw: AnyObject) -> E? {
+    public class func decodableTypeFromObject<E: EncodableType>(_ raw: AnyObject) -> E? {
         guard !(raw is NSNull) else {
             return nil
         }
@@ -20,16 +20,16 @@ public final class NativeTypesDecoder: DecoderType {
         return E(decoder: decoder)
     }
 
-    private init(raw: AnyObject) {
+    fileprivate init(raw: AnyObject) {
         self.raw = raw
     }
 
-    public func decode<Value: RawEncodableType>(key: CoderKey<Value>.Type) -> Value {
+    public func decode<Value: RawEncodableType>(_ key: CoderKey<Value>.Type) -> Value {
         let object = self.object(forKeyPath: key.path)
         return object as! Value
     }
 
-    public func decode<Value: RawEncodableType>(key: OptionalCoderKey<Value>.Type) -> Value? {
+    public func decode<Value: RawEncodableType>(_ key: OptionalCoderKey<Value>.Type) -> Value? {
         guard let object = self.object(forKeyPath: key.path) else {
            return nil
         }
@@ -37,19 +37,19 @@ public final class NativeTypesDecoder: DecoderType {
     }
 
 
-    public func decode<Value: EncodableType>(key: NestedCoderKey<Value>.Type) -> Value {
+    public func decode<Value: EncodableType>(_ key: NestedCoderKey<Value>.Type) -> Value {
         let object = self.object(forKeyPath: key.path)!
         return NativeTypesDecoder.decodableTypeFromObject(object)!
     }
 
-    public func decode<Value: EncodableType>(key: OptionalNestedCoderKey<Value>.Type) -> Value? {
+    public func decode<Value: EncodableType>(_ key: OptionalNestedCoderKey<Value>.Type) -> Value? {
         guard let object = self.object(forKeyPath: key.path) else {
             return nil
         }
         return NativeTypesDecoder.decodableTypeFromObject(object)
     }
 
-    public func decodeArray<Value: RawEncodableType>(key: CoderKey<Value>.Type) -> [Value] {
+    public func decodeArray<Value: RawEncodableType>(_ key: CoderKey<Value>.Type) -> [Value] {
         guard let array = self.object(forKeyPath: key.path) as? [AnyObject] else {
             fatalError("Unexpected type")
         }
@@ -60,7 +60,7 @@ public final class NativeTypesDecoder: DecoderType {
         return output
     }
 
-    public func decodeArray<Value: EncodableType>(key: NestedCoderKey<Value>.Type) -> [Value] {
+    public func decodeArray<Value: EncodableType>(_ key: NestedCoderKey<Value>.Type) -> [Value] {
         let object = self.object(forKeyPath: key.path)
         guard let array = object as? [AnyObject] else {
             if object is NSNull || object == nil {
@@ -83,7 +83,7 @@ private extension NativeTypesDecoder {
     func object(forKeyPath path: [String]) -> AnyObject? {
         switch self.raw {
         case var dict as [String:AnyObject]:
-            for (i, key) in path.enumerate() {
+            for (i, key) in path.enumerated() {
                 guard i < path.count - 1 else {
                     return dict[key]
                 }

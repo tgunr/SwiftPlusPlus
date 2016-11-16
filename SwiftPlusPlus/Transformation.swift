@@ -18,9 +18,9 @@ public struct Transform {
     }
 
     public var affineTransform: CGAffineTransform {
-        var transform = CGAffineTransformMakeScale(self.scale, self.scale)
-        transform = CGAffineTransformTranslate(transform, self.translation.x, self.translation.y)
-        transform = CGAffineTransformRotate(transform, self.rotation.radians())
+        var transform = CGAffineTransform(scaleX: self.scale, y: self.scale)
+        transform = transform.translatedBy(x: self.translation.x, y: self.translation.y)
+        transform = transform.rotated(by: self.rotation.radians())
         return transform
     }
 }
@@ -29,7 +29,7 @@ public struct Transform {
 import UIKit
 
 public extension UIView {
-    func set(transform: Transform) {
+    func set(_ transform: Transform) {
         self.transform = transform.affineTransform
     }
 }

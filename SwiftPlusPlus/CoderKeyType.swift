@@ -12,54 +12,54 @@ public protocol RawEncodableType {
     init()
     var asObject: AnyObject { get }
 }
-extension String: RawEncodableType { public var asObject: AnyObject { return self } }
-extension Bool: RawEncodableType { public var asObject: AnyObject { return self } }
-extension Int: RawEncodableType { public var asObject: AnyObject { return self } }
-extension Double: RawEncodableType { public var asObject: AnyObject { return self } }
-extension Float: RawEncodableType { public var asObject: AnyObject { return self } }
-extension NSData: RawEncodableType { public var asObject: AnyObject { return self } }
-extension NSDate: RawEncodableType { public var asObject: AnyObject { return self } }
+extension String: RawEncodableType { public var asObject: AnyObject { return self as AnyObject } }
+extension Bool: RawEncodableType { public var asObject: AnyObject { return self as AnyObject } }
+extension Int: RawEncodableType { public var asObject: AnyObject { return self as AnyObject } }
+extension Double: RawEncodableType { public var asObject: AnyObject { return self as AnyObject } }
+extension Float: RawEncodableType { public var asObject: AnyObject { return self as AnyObject } }
+extension Data: RawEncodableType { public var asObject: AnyObject { return self as AnyObject } }
+extension Date: RawEncodableType { public var asObject: AnyObject { return self as AnyObject } }
 
-public class CoderKey<Value: RawEncodableType> {
-    public class var customKey: String? { return nil }
+open class CoderKey<Value: RawEncodableType> {
+    open class var customKey: String? { return nil }
 }
 
-public class OptionalCoderKey<Value: RawEncodableType> {
-    public class var customKey: String? { return nil }
+open class OptionalCoderKey<Value: RawEncodableType> {
+    open class var customKey: String? { return nil }
 }
 
-public class NestedCoderKey<Value: EncodableType> {
-    public class var customKey: String? { return nil }
+open class NestedCoderKey<Value: EncodableType> {
+    open class var customKey: String? { return nil }
 }
 
-public class OptionalNestedCoderKey<Value: EncodableType> {
-    public class var customKey: String? { return nil }
+open class OptionalNestedCoderKey<Value: EncodableType> {
+    open class var customKey: String? { return nil }
 }
 
 extension CoderKey {
     static var path: [String] {
-        return self.customKey?.componentsSeparatedByString(".")
-            ?? [String(Mirror(reflecting: self).subjectType).componentsSeparatedByString(".").first!]
+        return self.customKey?.components(separatedBy: ".")
+            ?? [String(describing: Mirror(reflecting: self).subjectType).components(separatedBy: ".").first!]
     }
 }
 
 extension OptionalCoderKey {
     static var path: [String] {
-        return self.customKey?.componentsSeparatedByString(".")
-            ?? [String(Mirror(reflecting: self).subjectType).componentsSeparatedByString(".").first!]
+        return self.customKey?.components(separatedBy: ".")
+            ?? [String(describing: Mirror(reflecting: self).subjectType).components(separatedBy: ".").first!]
     }
 }
 
 extension NestedCoderKey {
     static var path: [String] {
-        return self.customKey?.componentsSeparatedByString(".")
-            ?? [String(Mirror(reflecting: self).subjectType).componentsSeparatedByString(".").first!]
+        return self.customKey?.components(separatedBy: ".")
+            ?? [String(describing: Mirror(reflecting: self).subjectType).components(separatedBy: ".").first!]
     }
 }
 
 extension OptionalNestedCoderKey {
     static var path: [String] {
-        return self.customKey?.componentsSeparatedByString(".")
-            ?? [String(Mirror(reflecting: self).subjectType).componentsSeparatedByString(".").first!]
+        return self.customKey?.components(separatedBy: ".")
+            ?? [String(describing: Mirror(reflecting: self).subjectType).components(separatedBy: ".").first!]
     }
 }

@@ -35,16 +35,16 @@ public extension UIColor {
         }
 
         var rgbValue: UInt32 = 0
-        let scanner = NSScanner(string: finalHexString)
+        let scanner = Scanner(string: finalHexString)
         scanner.scanLocation = 1 // bypass '#' character
-        scanner.scanHexInt(&rgbValue)
+        scanner.scanHexInt32(&rgbValue)
         let red = CGFloat((rgbValue & 0xFF0000) >> 16) / 255.0
         let green = CGFloat((rgbValue & 0xFF00) >> 8) / 255.0
         let blue = CGFloat(rgbValue & 0xFF) / 255.0
         self.init(red: red, green: green, blue: blue, alpha:1.0)
     }
 
-    public func darkerByPercent(percent: CGFloat) -> UIColor {
+    public func darkerByPercent(_ percent: CGFloat) -> UIColor {
         var hue: CGFloat = 0
         var saturation: CGFloat = 0
         var brightness: CGFloat = 0
@@ -53,7 +53,7 @@ public extension UIColor {
         return UIColor(hue: hue, saturation: saturation, brightness: max(brightness - percent, 0), alpha: alpha)
     }
 
-    public func lighterByPercent(percent: CGFloat) -> UIColor {
+    public func lighterByPercent(_ percent: CGFloat) -> UIColor {
         var hue: CGFloat = 0
         var saturation: CGFloat = 0
         var brightness: CGFloat = 0

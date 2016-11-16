@@ -8,8 +8,8 @@
 
 import UIKit
 
-@IBDesignable public class PlaceholderTextView: UITextView {
-    private var placeholderTextView = UITextView()
+@IBDesignable open class PlaceholderTextView: UITextView {
+    fileprivate var placeholderTextView = UITextView()
     
     required public init?(coder aDecoder: NSCoder) {
         super.init(coder: aDecoder)
@@ -22,14 +22,14 @@ import UIKit
     }
 
     convenience init() {
-        self.init(frame: CGRectZero, textContainer: nil)
+        self.init(frame: CGRect.zero, textContainer: nil)
     }
     
     deinit {
-        NSNotificationCenter.defaultCenter().removeObserver(self, name: UITextViewTextDidChangeNotification, object: self)
+        NotificationCenter.default.removeObserver(self, name: NSNotification.Name.UITextViewTextDidChange, object: self)
     }
     
-    @IBInspectable public var placeholder: String {
+    @IBInspectable open var placeholder: String {
         set {
             self.placeholderTextView.text = newValue
             self.setNeedsLayout()
@@ -39,13 +39,13 @@ import UIKit
         }
     }
     
-    override public var font: UIFont! {
+    override open var font: UIFont! {
         didSet {
             self.placeholderTextView.font = font
         }
     }
     
-    override public var contentOffset: CGPoint {
+    override open var contentOffset: CGPoint {
         didSet {
             let textView = self.placeholderTextView
             var top = (textView.bounds.height - textView.contentSize.height * textView.zoomScale) / 2.0;
@@ -54,40 +54,40 @@ import UIKit
         }
     }
     
-    override public var textAlignment: NSTextAlignment {
+    override open var textAlignment: NSTextAlignment {
         didSet {
             self.placeholderTextView.textAlignment = textAlignment
         }
     }
     
-    override public var text: String! {
+    override open var text: String! {
         didSet {
-            self.placeholderTextView.hidden = !text.isEmpty
+            self.placeholderTextView.isHidden = !text.isEmpty
         }
     }
     
-    override public func layoutSubviews() {
+    override open func layoutSubviews() {
         super.layoutSubviews()
         self.placeholderTextView.frame = self.bounds
     }
     
-    public func textChanged(notification: NSNotification) {
+    open func textChanged(_ notification: Notification) {
         if self.placeholder.isEmpty {
             return
         }
-        self.placeholderTextView.hidden = !self.text.isEmpty
+        self.placeholderTextView.isHidden = !self.text.isEmpty
     }
 }
 
 private extension PlaceholderTextView {
     func sharedSetup() {
-        NSNotificationCenter.defaultCenter().addObserver(self, selector: #selector(textChanged(_:)), name: UITextViewTextDidChangeNotification, object: self)
+        NotificationCenter.default.addObserver(self, selector: #selector(textChanged(_:)), name: NSNotification.Name.UITextViewTextDidChange, object: self)
         
-        self.placeholderTextView.userInteractionEnabled = false
+        self.placeholderTextView.isUserInteractionEnabled = false
         self.addSubview(placeholderTextView)
         self.placeholderTextView.font = self.font
         self.placeholderTextView.textColor = UIColor(white: 0, alpha: 0.3)
-        self.placeholderTextView.backgroundColor = UIColor.clearColor()
+        self.placeholderTextView.backgroundColor = UIColor.clear
         self.placeholderTextView.textAlignment = self.textAlignment
     }
 }

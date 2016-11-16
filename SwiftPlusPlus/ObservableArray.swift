@@ -7,17 +7,17 @@
 //
 
 public final class ObservableArray<Element> {
-    public typealias DidInsert = (Element, at: Int) -> ()
-    public typealias DidRemove = (Element, at: Int) -> ()
-    public typealias DidRemoveAll = (oldValues: [Element]) -> ()
-    public typealias DidMove = (Element, from: Int, to: Int) -> ()
+    public typealias DidInsert = (Element, _ at: Int) -> ()
+    public typealias DidRemove = (Element, _ at: Int) -> ()
+    public typealias DidRemoveAll = (_ oldValues: [Element]) -> ()
+    public typealias DidMove = (Element, _ from: Int, _ to: Int) -> ()
     public typealias ObservationHandlers = (insert: DidInsert?, remove: DidRemove?, removeAll: DidRemoveAll?, didMove: DidMove?)
 
-    private var observers: [(observer: WeakWrapper, handlers: [ObservationHandlers])] = []
-    private var onHasObserversChanged: ((Bool) -> ())?
-    private var isOrderedBefore: ((lhs: Element, rhs: Element) -> Bool)?
+    fileprivate var observers: [(observer: WeakWrapper, handlers: [ObservationHandlers])] = []
+    fileprivate var onHasObserversChanged: ((Bool) -> ())?
+    fileprivate var isOrderedBefore: ((_ lhs: Element, _ rhs: Element) -> Bool)?
 
-    public private(set) var values: [Element]
+    public fileprivate(set) var values: [Element]
 
     public convenience init() {
         self.init([])
@@ -25,7 +25,7 @@ public final class ObservableArray<Element> {
 
     public init(
         _ values: [Element],
-        enforceOrder isOrderedBefore: ((lhs: Element, rhs: Element) -> Bool)? = nil,
+        enforceOrder isOrderedBefore: ((_ lhs: Element, _ rhs: Element) -> Bool)? = nil,
         onHasObserversChanged: ((Bool) -> ())? = nil
         )
     {
@@ -35,7 +35,7 @@ public final class ObservableArray<Element> {
     }
 
     public func add(
-        observer observer: AnyObject,
+        observer: AnyObject,
         onDidInsert: DidInsert? = nil,
         onDidRemove: DidRemove? = nil,
         onDidRemoveAll: DidRemoveAll? = nil,
@@ -64,68 +64,68 @@ public final class ObservableArray<Element> {
         }
     }
 
-    public func add(observer observer: AnyObject, forSection section: Int, in tableView: UITableView, withIndexOffset indexOffset: Int = 0) {
+    public func add(observer: AnyObject, forSection section: Int, in tableView: UITableView, withIndexOffset indexOffset: Int = 0) {
         self.add(
             observer: observer,
             onDidInsert: { _, index in
-                let indexPath = NSIndexPath(forItem: index + indexOffset, inSection: section)
-                tableView.insertRowsAtIndexPaths([indexPath], withRowAnimation: .Automatic)
+                let indexPath = IndexPath(item: index + indexOffset, section: section)
+                tableView.insertRows(at: [indexPath], with: .automatic)
             },
             onDidRemove: { _, index in
-                let indexPath = NSIndexPath(forItem: index + indexOffset, inSection: section)
-                tableView.deleteRowsAtIndexPaths([indexPath], withRowAnimation: .Automatic)
+                let indexPath = IndexPath(item: index + indexOffset, section: section)
+                tableView.deleteRows(at: [indexPath], with: .automatic)
             },
             onDidRemoveAll: { _ in
-                tableView.reloadSections(NSIndexSet(index: section), withRowAnimation: .Automatic)
+                tableView.reloadSections(IndexSet(integer: section), with: .automatic)
             },
             onDidMove: { _, from, to in
-                tableView.moveRowAtIndexPath(
-                    NSIndexPath(forRow: from + indexOffset, inSection: section),
-                    toIndexPath: NSIndexPath(forRow: to + indexOffset, inSection: section)
+                tableView.moveRow(
+                    at: IndexPath(row: from + indexOffset, section: section),
+                    to: IndexPath(row: to + indexOffset, section: section)
                 )
             }
         )
     }
 
-    public func add(observer observer: AnyObject, forSection section: Int, in collectionView: UICollectionView, withIndexOffset indexOffset: Int = 0) {
+    public func add(observer: AnyObject, forSection section: Int, in collectionView: UICollectionView, withIndexOffset indexOffset: Int = 0) {
         self.add(
             observer: observer,
             onDidInsert: { _, index in
-                let indexPath = NSIndexPath(forItem: index + indexOffset, inSection: section)
-                collectionView.insertItemsAtIndexPaths([indexPath])
+                let indexPath = IndexPath(item: index + indexOffset, section: section)
+                collectionView.insertItems(at: [indexPath])
             },
             onDidRemove: { _, index in
-                let indexPath = NSIndexPath(forItem: index + indexOffset, inSection: section)
-                collectionView.deleteItemsAtIndexPaths([indexPath])
+                let indexPath = IndexPath(item: index + indexOffset, section: section)
+                collectionView.deleteItems(at: [indexPath])
             },
             onDidRemoveAll: { _ in
                 collectionView.reloadData()
             },
             onDidMove: { _, from, to in
-                collectionView.moveItemAtIndexPath(
-                    NSIndexPath(forItem: from + indexOffset, inSection: section),
-                    toIndexPath: NSIndexPath(forItem: to + indexOffset, inSection: section)
+                collectionView.moveItem(
+                    at: IndexPath(item: from + indexOffset, section: section),
+                    to: IndexPath(item: to + indexOffset, section: section)
                 )
             }
         )
     }
 
-    public func remove(observer observer: AnyObject) {
+    public func remove(observer: AnyObject) {
         if let index = self.index(ofObserver: observer) {
-            self.observers.removeAtIndex(index)
+            self.observers.remove(at: index)
             if self.observers.count == 0 {
                 self.onHasObserversChanged?(false)
             }
         }
     }
 
-    public func append(element: Element) {
+    public func append(_ element: Element) {
         if let isOrderedBefore = self.isOrderedBefore {
-            for (index, otherElement) in self.values.enumerate() {
-                if isOrderedBefore(lhs: element, rhs: otherElement) {
-                    self.values.insert(element, atIndex: index)
+            for (index, otherElement) in self.values.enumerated() {
+                if isOrderedBefore(element, otherElement) {
+                    self.values.insert(element, at: index)
                     self.executeWithAllHandlers({ handler in
-                        handler.insert?(element, at: index)
+                        handler.insert?(element, index)
                     })
                     return
                 }
@@ -135,26 +135,26 @@ public final class ObservableArray<Element> {
         self.values.append(element)
         let index = self.values.count - 1
         self.executeWithAllHandlers({ handler in
-            handler.insert?(element, at: index)
+            handler.insert?(element, index)
         })
     }
 
-    public func insert(element: Element, at index: Int) {
+    public func insert(_ element: Element, at index: Int) {
         if self.isOrderedBefore != nil {
             self.append(element)
         }
 
-        self.values.insert(element, atIndex: index)
+        self.values.insert(element, at: index)
         self.executeWithAllHandlers({ handler in
-            handler.insert?(element, at: index)
+            handler.insert?(element, index)
         })
     }
 
     public func remove(at index: Int) {
         let element = self.values[index]
-        self.values.removeAtIndex(index)
+        self.values.remove(at: index)
         self.executeWithAllHandlers({ handler in
-            handler.remove?(element, at: index)
+            handler.remove?(element, index)
         })
     }
 
@@ -162,7 +162,7 @@ public final class ObservableArray<Element> {
         let oldValues = self.values
         self.values.removeAll()
         self.executeWithAllHandlers({ handler in
-            handler.removeAll?(oldValues: oldValues)
+            handler.removeAll?(oldValues)
         })
     }
 
@@ -172,25 +172,25 @@ public final class ObservableArray<Element> {
         }
 
         var unsortedTemplate = [(id: Int, element: Element)]()
-        for (index, element) in self.values.enumerate() {
+        for (index, element) in self.values.enumerated() {
             let value = (id: index, element: element)
             unsortedTemplate.append(value)
         }
-        let sortedTemplate = unsortedTemplate.sort({ isOrderedBefore(lhs: $0.element, rhs: $1.element) })
+        let sortedTemplate = unsortedTemplate.sorted(by: { isOrderedBefore($0.element, $1.element) })
 
         var toIndex = self.values.count - 1
-        for (sortedId, _) in sortedTemplate.reverse() {
+        for (sortedId, _) in sortedTemplate.reversed() {
             var fromIndex = 0
             for (unsortedId, _) in unsortedTemplate {
                 if sortedId == unsortedId {
                     if fromIndex != toIndex {
                         // move
-                        let element = self.values.removeAtIndex(fromIndex)
-                        self.values.insert(element, atIndex: toIndex)
-                        let template = unsortedTemplate.removeAtIndex(fromIndex)
-                        unsortedTemplate.insert(template, atIndex: toIndex)
+                        let element = self.values.remove(at: fromIndex)
+                        self.values.insert(element, at: toIndex)
+                        let template = unsortedTemplate.remove(at: fromIndex)
+                        unsortedTemplate.insert(template, at: toIndex)
                         self.executeWithAllHandlers({ handler in
-                            handler.didMove?(element, from: fromIndex, to: toIndex)
+                            handler.didMove?(element, fromIndex, toIndex)
                         })
                     }
                     break
@@ -214,10 +214,10 @@ private extension ObservableArray {
         return nil
     }
 
-    func executeWithAllHandlers(callback: (handlers: ObservationHandlers) -> ()) {
+    func executeWithAllHandlers(_ callback: (_ handlers: ObservationHandlers) -> ()) {
         for (_, handlers) in self.observers {
             for handler in handlers {
-                callback(handlers: handler)
+                callback(handler)
             }
         }
     }

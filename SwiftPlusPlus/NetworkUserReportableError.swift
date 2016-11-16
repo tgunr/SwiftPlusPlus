@@ -7,12 +7,12 @@
 //
 
 public struct NetworkUserReportableError: UserReportableError {
-    public enum Type {
-        case Unauthorized
-        case NoInternet
-        case NotFound
-        case Internal(message: String)
-        case User(message: String)
+    public enum `Type` {
+        case unauthorized
+        case noInternet
+        case notFound
+        case `internal`(message: String)
+        case user(message: String)
     }
 
     let source: String
@@ -32,30 +32,30 @@ public struct NetworkUserReportableError: UserReportableError {
         self.operation = operation
         self.otherInfo = nil
         if error.domain == "NSURLErrorDomain" && error.code == -1009 {
-            self.type = .NoInternet
+            self.type = .noInternet
         }
         else {
-            self.type = .Internal(message: error.localizedDescription)
+            self.type = .internal(message: error.localizedDescription)
         }
     }
 
-    public init?(source: String, operation: String, response: NSHTTPURLResponse?, data: NSData?) {
+    public init?(source: String, operation: String, response: HTTPURLResponse?, data: Data?) {
         self.source = source
         self.operation = operation
         if let response = response {
             switch response.statusCode ?? 0 {
             case 404:
-                self.type = .NotFound
+                self.type = .notFound
                 self.otherInfo = nil
             case 401:
-                self.type = .Unauthorized
+                self.type = .unauthorized
                 self.otherInfo = nil
             case let x where x >= 400 && x < 500:
                 if let data = data {
                     (self.type, self.otherInfo) = NetworkUserReportableError.typeAndOtherInfo(fromData: data, andResponse: response)
                 }
                 else {
-                    self.type = .User(message: "Invalid request")
+                    self.type = .user(message: "Invalid request")
                     self.otherInfo = nil
                 }
             case let x where x >= 500 && x < 600:
@@ -63,7 +63,7 @@ public struct NetworkUserReportableError: UserReportableError {
                     (self.type, self.otherInfo) = NetworkUserReportableError.typeAndOtherInfo(fromData: data, andResponse: response)
                 }
                 else {
-                    self.type = .Internal(message: "Unknown error")
+                    self.type = .internal(message: "Unknown error")
                     self.otherInfo = nil
                 }
             default:
@@ -77,53 +77,53 @@ public struct NetworkUserReportableError: UserReportableError {
 
     public var alertTitle: String {
         switch self.type {
-        case .User:
+        case .user:
             return "Problem \(self.operation)"
-        case .Internal:
+        case .internal:
             return "Internal Error"
-        case .NoInternet:
+        case .noInternet:
             return "No Interent Connection"
-        case .Unauthorized:
+        case .unauthorized:
             return "Unauthorized"
-        case .NotFound:
+        case .notFound:
             return "Endpoint not found"
         }
     }
 
     public var alertMessage: String {
         switch self.type {
-        case .Internal(let message):
+        case .internal(let message):
             return "Please try again. If the problem persists please contact support with the following description: \(message)"
-        case .User(let message):
+        case .user(let message):
             return message
-        case .NoInternet:
+        case .noInternet:
             return "Please make sure you are connected to the internet and try again"
-        case .Unauthorized:
+        case .unauthorized:
             return "You have been signed out. Please sign in again."
-        case .NotFound:
+        case .notFound:
             return "Please try again. If the problem persists please contact support"
         }
     }
 }
 
 private extension NetworkUserReportableError {
-    static func typeAndOtherInfo(fromData data: NSData, andResponse response: NSHTTPURLResponse) -> (type: Type, otherInfo: [String:String]?){
-        let encoding: NSStringEncoding
+    static func typeAndOtherInfo(fromData data: Data, andResponse response: HTTPURLResponse) -> (type: Type, otherInfo: [String:String]?){
+        let encoding: String.Encoding
         if let encodingName = response.textEncodingName {
-            encoding = CFStringConvertEncodingToNSStringEncoding(CFStringConvertIANACharSetNameToEncoding(encodingName))
+            encoding = String.Encoding(rawValue: CFStringConvertEncodingToNSStringEncoding(CFStringConvertIANACharSetNameToEncoding(encodingName as CFString!)))
         }
         else {
-            encoding = NSUTF8StringEncoding
+            encoding = String.Encoding.utf8
         }
-        if let json = try? NSJSONSerialization.JSONObjectWithData(data, options: NSJSONReadingOptions())
+        if let json = try? JSONSerialization.jsonObject(with: data, options: JSONSerialization.ReadingOptions())
             , let dict = json as? [String:String]
             , let message = dict["message"]
         {
-            return (type: .User(message: message ?? ""), otherInfo: dict)
+            return (type: .user(message: message ?? ""), otherInfo: dict)
         }
         else {
             let string = String(data: data, encoding: encoding)
-            return (type: .User(message: string ?? ""), otherInfo: nil)
+            return (type: .user(message: string ?? ""), otherInfo: nil)
         }
     }
 }

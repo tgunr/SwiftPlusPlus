@@ -8,15 +8,15 @@
 
 import UIKit
 
-public class BubbleView: UIView {
-    private class TickView: UIView {
-        var color: UIColor = UIColor.blackColor() {
+open class BubbleView: UIView {
+    fileprivate class TickView: UIView {
+        var color: UIColor = UIColor.black {
             didSet {
                 self.setNeedsDisplay()
             }
         }
 
-        override func drawRect(rect: CGRect) {
+        override func draw(_ rect: CGRect) {
             let width = rect.maxX - rect.minX
             let top = round(rect.midY - width / 2)
             let middle = round(rect.midY)
@@ -27,20 +27,33 @@ public class BubbleView: UIView {
             let right = rect.maxX
 
             let context = UIGraphicsGetCurrentContext()!
-            CGContextMoveToPoint(context, right, top)
-            CGContextAddLineToPoint(context, right, bottom)
-            CGContextAddCurveToPoint(context, center, middle + width / 4, left, middle, left, middle)
-            CGContextAddCurveToPoint(context, center, middle - width / 4, right, top, right, top)
+            context.move(to: CGPoint(x: right, y: top))
+            context.addLine(to: CGPoint(x: right, y: bottom))
+
+            // CGContextAddCurveToPoint(context, center, middle + width / 4, left, middle, left, middle)
+            // CGContextAddCurveToPoint(context, center, middle - width / 4, right, top, right, top)
+            // Converted to addCurve
+            var cp: CGPoint = CGPoint.init(x: left, y: middle)
+            var cp1: CGPoint = CGPoint.init(x: center, y: middle + width / 4)
+            var cp2: CGPoint = CGPoint.init(x: left, y: middle)
+            context.addCurve(to: cp, control1: cp1, control2: cp2)
+
+            cp.x = right
+            cp.y = top
+            cp1.y = middle - width / 4
+            cp2.x = right
+            cp2.y = top
+            context.addCurve(to: cp, control1: cp1, control2: cp2)
             self.color.setFill()
-            CGContextFillPath(context)
+            context.fillPath()
         }
     }
 
-    public let subview: UIView
-    private let tickView = TickView()
-    public static let tickWidth: CGFloat = 20
+    open let subview: UIView
+    fileprivate let tickView = TickView()
+    open static let tickWidth: CGFloat = 20
 
-    public var color: UIColor = UIColor.blackColor() {
+    open var color: UIColor = UIColor.black {
         didSet {
             self.tickView.color = color
             self.subview.backgroundColor = color
@@ -53,7 +66,7 @@ public class BubbleView: UIView {
 
         super.init(frame: frame)
 
-        self.tickView.backgroundColor = UIColor.clearColor()
+        self.tickView.backgroundColor = UIColor.clear
         self.tickView.color = self.color
         self.subview.backgroundColor = self.color
 
@@ -68,7 +81,7 @@ public class BubbleView: UIView {
         fatalError("init(coder:) has not been implemented")
     }
 
-    override public func layoutSubviews() {
+    override open func layoutSubviews() {
         super.layoutSubviews()
 
         self.tickView.frame = CGRect(x: 0, y: 0, width: BubbleView.tickWidth, height: self.bounds.height)

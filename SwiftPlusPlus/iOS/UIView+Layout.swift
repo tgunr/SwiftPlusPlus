@@ -9,14 +9,14 @@
 import Foundation
 
 extension UIView {
-    public func addFillingSubview(view: UIView) {
+    public func addFillingSubview(_ view: UIView) {
         view.translatesAutoresizingMaskIntoConstraints = false
         view.frame = self.bounds
         self.addSubview(view)
         self.addConstraints(NSLayoutConstraint.fillConstraintsWithView(view))
     }
 
-    public func addCenteredView(view: UIView, withOffset offset: CGPoint) {
+    public func addCenteredView(_ view: UIView, withOffset offset: CGPoint) {
         view.translatesAutoresizingMaskIntoConstraints = false
         self.addSubview(view)
         self.addConstraints(NSLayoutConstraint.centerConstraintsWithView(view, inView: self, withOffset: offset))

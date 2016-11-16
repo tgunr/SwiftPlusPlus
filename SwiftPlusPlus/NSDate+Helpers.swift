@@ -8,29 +8,29 @@
 
 import UIKit
 
-extension NSDate {
+extension Date {
     public var isToday: Bool {
-        let cal = NSCalendar.currentCalendar()
-        let units = NSCalendarUnit.Era
-            .union(.Year)
-            .union(.Month)
-            .union(.Day)
-        var components = cal.components(units, fromDate: NSDate())
-        let today = cal.dateFromComponents(components)
-        components = cal.components(units, fromDate: self)
-        let otherDate = cal.dateFromComponents(components)
+        let cal = Calendar.current
+        let units = NSCalendar.Unit.era
+            .union(.year)
+            .union(.month)
+            .union(.day)
+        var components = (cal as NSCalendar).components(units, from: Date())
+        let today = cal.date(from: components)
+        components = (cal as NSCalendar).components(units, from: self)
+        let otherDate = cal.date(from: components)
 
         return today == otherDate
     }
 
     public var isThisYear: Bool {
-        let cal = NSCalendar.currentCalendar()
-        let units = NSCalendarUnit.Era
-            .union(.Year)
-        var components = cal.components(units, fromDate: NSDate())
-        let today = cal.dateFromComponents(components)
-        components = cal.components(units, fromDate: self)
-        let otherDate = cal.dateFromComponents(components)
+        let cal = Calendar.current
+        let units = NSCalendar.Unit.era
+            .union(.year)
+        var components = (cal as NSCalendar).components(units, from: Date())
+        let today = cal.date(from: components)
+        components = (cal as NSCalendar).components(units, from: self)
+        let otherDate = cal.date(from: components)
 
         return today == otherDate
     }
@@ -40,8 +40,9 @@ extension NSDate {
         let wholeSecsFloor = floor(seconds)
         let nanosOnly = seconds - wholeSecsFloor
         let nanosFloor = floor(nanosOnly * Double(NSEC_PER_SEC))
-        var thisStruct = timespec(tv_sec: Int(wholeSecsFloor),
+        let thisStruct = timespec(tv_sec: Int(wholeSecsFloor),
                                   tv_nsec: Int(nanosFloor))
-        return dispatch_walltime(&thisStruct, 0)
+        let dt = DispatchWallTime.init(timespec: thisStruct).rawValue
+        return dt
     }
 }

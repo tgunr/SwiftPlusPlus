@@ -14,97 +14,97 @@ public enum TaskResult {
 public final class TaskService {
     public static let singleton = TaskService()
 
-    private var backgroundOperationQueue = NSOperationQueue()
-    private typealias PeriodicTaskSpec = (task: PeriodicTask, period: TaskPeriod)
-    private var scheduledPeriodicTasks = [String:PeriodicTaskSpec]()
-    private var scheduledSingleTasks = [SingleTask]()
+    fileprivate var backgroundOperationQueue = OperationQueue()
+    fileprivate typealias PeriodicTaskSpec = (task: PeriodicTask, period: TaskPeriod)
+    fileprivate var scheduledPeriodicTasks = [String:PeriodicTaskSpec]()
+    fileprivate var scheduledSingleTasks = [SingleTask]()
 
-    private init() {}
+    fileprivate init() {}
 
     var logTasks = false
 
-    static public func performInBackground(block: () -> ()) {
+    static public func performInBackground(_ block: @escaping () -> ()) {
         return self.singleton.performInBackground(block)
     }
 
-    static public func performInForeground(afterDelay delay: NSTimeInterval? = nil, waitForCompletion wait: Bool = false, block: () -> ()) {
+    static public func performInForeground(afterDelay delay: TimeInterval? = nil, waitForCompletion wait: Bool = false, block: @escaping () -> ()) {
         return self.singleton.performInForeground(afterDelay: delay, waitForCompletion: wait, block: block)
     }
 
-    public func schedule(singleTask task: SingleTask, at date: NSDate) {
-        guard date.timeIntervalSinceDate(NSDate()) >= 0 else {
-            return
-        }
-
-        if let existingIndex = self.index(of: task) {
-            self.scheduledSingleTasks.removeAtIndex(existingIndex)
-        }
-
-        task.scheduledFor = date
-        self.scheduledSingleTasks.append(task)
-
-        dispatch_after(date.time, dispatch_get_main_queue(), {
-            guard let _ = self.index(of: task) where date == task.scheduledFor else {
-                return
-            }
-            if self.logTasks {
-                self.logTask("Performing \(task.identifier) in foreground")
-            }
-            task.perform()
-
-            guard let index = self.index(of: task) else {
-                return
-            }
-            self.scheduledSingleTasks.removeAtIndex(index)
-        })
-        logTask("Scheduled \(task.identifier) for \(date)")
-    }
+//    public func schedule(singleTask task: SingleTask, at date: Date) {
+//        guard date.timeIntervalSince(Date()) >= 0 else {
+//            return
+//        }
+//
+//        if let existingIndex = self.index(of: task) {
+//            self.scheduledSingleTasks.remove(at: existingIndex)
+//        }
+//
+//        task.scheduledFor = date
+//        self.scheduledSingleTasks.append(task)
+//
+//        DispatchQueue.main.asyncAfter(deadline: date.time, execute: {
+//            guard let _ = self.index(of: task), date == task.scheduledFor else {
+//                return
+//            }
+//            if self.logTasks {
+//                self.logTask("Performing \(task.identifier) in foreground")
+//            }
+//            task.perform()
+//
+//            guard let index = self.index(of: task) else {
+//                return
+//            }
+//            self.scheduledSingleTasks.remove(at: index)
+//        })
+//        logTask("Scheduled \(task.identifier) for \(date)")
+//    }
 
     public func unschedule(singleTask task: SingleTask) {
         guard let existingIndex = self.index(of: task) else {
             return
         }
 
-        self.scheduledSingleTasks.removeAtIndex(existingIndex)
+        self.scheduledSingleTasks.remove(at: existingIndex)
     }
 
-    public func schedule(periodicTask task: PeriodicTask, with period: TaskPeriod) {
-        TaskService.performInForeground {
-            self.scheduledPeriodicTasks[task.uniqueIdentifier] = (task: task, period: period)
-
-            guard !task.isRunning else {
-                return
-            }
-
-            if let lastSuccessfulRun = task.lastSuccessfulRun {
-                guard !period.contains(lastSuccessfulRun) else {
-                    self.schedule(periodicTask: task, with: period, at: period.nextDate(lastSuccessfulRun))
-                    return
-                }
-            }
-
-            self.performTask(withIdentifier: task.uniqueIdentifier, with: period)
-        }
-    }
-
+//    public func schedule(periodicTask task: PeriodicTask, with period: TaskPeriod) {
+//        TaskService.performInForeground {
+//            self.scheduledPeriodicTasks[task.uniqueIdentifier] = (task: task, period: period)
+//
+//            guard !task.isRunning else {
+//                return
+//            }
+//
+//            if let lastSuccessfulRun = task.lastSuccessfulRun {
+//                guard !period.contains(lastSuccessfulRun) else {
+//                    self.schedule(periodicTask: task, with: period, at: period.nextDate(lastSuccessfulRun))
+//                    return
+//                }
+//            }
+//
+//            self.performTask(withIdentifier: task.uniqueIdentifier, with: period)
+//        }
+//    }
+//
     public func unschedule(periodicTask task: PeriodicTask) {
         TaskService.performInForeground {
             self.scheduledPeriodicTasks[task.uniqueIdentifier] = nil
         }
     }
 
-    public func manuallyPerform(periodicTask task: PeriodicTask) {
-        guard let (_, period) = self.scheduledPeriodicTasks[task.uniqueIdentifier] else {
-            return
-        }
-
-        self.performTask(withIdentifier: task.uniqueIdentifier, with: period)
-    }
+//    public func manuallyPerform(periodicTask task: PeriodicTask) {
+//        guard let (_, period) = self.scheduledPeriodicTasks[task.uniqueIdentifier] else {
+//            return
+//        }
+//
+//        self.performTask(withIdentifier: task.uniqueIdentifier, with: period)
+//    }
 }
 
 private extension TaskService {
     func index(of singleTask: SingleTask) -> Int? {
-        for (index, task) in self.scheduledSingleTasks.enumerate() {
+        for (index, task) in self.scheduledSingleTasks.enumerated() {
             if task === singleTask {
                 return index
             }
@@ -112,95 +112,95 @@ private extension TaskService {
         return nil
     }
 
-    func performInBackground(block: () -> ()) {
-        let operation = NSBlockOperation(block: block)
+    func performInBackground(_ block: @escaping () -> ()) {
+        let operation = BlockOperation(block: block)
         self.backgroundOperationQueue.addOperation(operation)
     }
 
-    func performInForeground(afterDelay delay: NSTimeInterval?, waitForCompletion: Bool, block: () -> ()) {
+    func performInForeground(afterDelay delay: TimeInterval?, waitForCompletion: Bool, block: @escaping () -> ()) {
         if waitForCompletion {
-            let semaphore = dispatch_semaphore_create(0)
+            let semaphore = DispatchSemaphore(value: 0)
             func execute() {
                 block()
-                dispatch_semaphore_signal(semaphore)
+                semaphore.signal()
             }
             if let delay = delay {
-                let delayTime = dispatch_time(DISPATCH_TIME_NOW, Int64(delay * Double(NSEC_PER_SEC)))
-                dispatch_after(delayTime, dispatch_get_main_queue(), execute)
+                let delayTime = DispatchTime.now() + Double(Int64(delay * Double(NSEC_PER_SEC))) / Double(NSEC_PER_SEC)
+                DispatchQueue.main.asyncAfter(deadline: delayTime, execute: execute)
             }
             else {
-                dispatch_async(dispatch_get_main_queue(), execute)
+                DispatchQueue.main.async(execute: execute)
             }
-            dispatch_semaphore_wait(semaphore, DISPATCH_TIME_FOREVER)
+            semaphore.wait(timeout: DispatchTime.distantFuture)
         }
         else {
             if let delay = delay {
-                let delayTime = dispatch_time(DISPATCH_TIME_NOW, Int64(delay * Double(NSEC_PER_SEC)))
-                dispatch_after(delayTime, dispatch_get_main_queue(), block)
+                let delayTime = DispatchTime.now() + Double(Int64(delay * Double(NSEC_PER_SEC))) / Double(NSEC_PER_SEC)
+                DispatchQueue.main.asyncAfter(deadline: delayTime, execute: block)
             }
             else {
-                dispatch_async(dispatch_get_main_queue(), block)
+                DispatchQueue.main.async(execute: block)
             }
         }
     }
 
-    func schedule(periodicTask task: PeriodicTask, with period: TaskPeriod, at date: NSDate) {
-        guard self.scheduledPeriodicTasks[task.uniqueIdentifier] != nil else {
-            return
-        }
+//    func schedule(periodicTask task: PeriodicTask, with period: TaskPeriod, at date: Date) {
+//        guard self.scheduledPeriodicTasks[task.uniqueIdentifier] != nil else {
+//            return
+//        }
+//
+//        let scheduledCount = task.scheduleCount + 1
+//        self.scheduledPeriodicTasks[task.uniqueIdentifier]!.task.scheduleCount = scheduledCount
+//        DispatchQueue.main.asyncAfter(deadline: date.time, execute: {
+//            guard scheduledCount == self.scheduledPeriodicTasks[task.uniqueIdentifier]!.task.scheduleCount else {
+//                return
+//            }
+//            self.performTask(withIdentifier: task.uniqueIdentifier, with: period)
+//        })
+//        logTask("Scheduled \(task.uniqueIdentifier) for \(date)")
+//    }
 
-        let scheduledCount = task.scheduleCount + 1
-        self.scheduledPeriodicTasks[task.uniqueIdentifier]!.task.scheduleCount = scheduledCount
-        dispatch_after(date.time, dispatch_get_main_queue(), {
-            guard scheduledCount == self.scheduledPeriodicTasks[task.uniqueIdentifier]!.task.scheduleCount else {
-                return
-            }
-            self.performTask(withIdentifier: task.uniqueIdentifier, with: period)
-        })
-        logTask("Scheduled \(task.uniqueIdentifier) for \(date)")
-    }
+//    func performTask(withIdentifier uniqueIdentifier: String, with period: TaskPeriod) {
+//        guard let task = self.scheduledPeriodicTasks[uniqueIdentifier]?.task else {
+//            return
+//        }
+//
+//        self.scheduledPeriodicTasks[uniqueIdentifier]!.task.isRunning = true
+//
+//        func onComplete(_ result: TaskResult) {
+//            guard self.scheduledPeriodicTasks[uniqueIdentifier] != nil else {
+//                return
+//            }
+//
+//            switch result {
+//            case .success:
+//                let date = Date()
+//                self.scheduledPeriodicTasks[uniqueIdentifier]!.task.lastSuccessfulRun = date
+//                self.schedule(periodicTask: task, with: period, at: period.nextDate(date))
+//            case .error(_):
+//                let date = Date().addingTimeInterval(60 * 60) // Retry in 1 hour
+//                self.schedule(periodicTask: task, with: period, at: date)
+//            }
+//            self.scheduledPeriodicTasks[uniqueIdentifier]!.task.isRunning = false
+//        }
+//
+//        switch task.performIn {
+//        case .foreground:
+//            logTask("Performing \(uniqueIdentifier) in foreground")
+//            task.perform(onComplete)
+//        case .background:
+//            logTask("Performing \(uniqueIdentifier) in background")
+//            TaskService.performInBackground {
+//                task.perform { result in
+//                    TaskService.performInForeground {
+//                        onComplete(result)
+//                    }
+//                }
+//            }
+//        }
+//    }
 
-    func performTask(withIdentifier uniqueIdentifier: String, with period: TaskPeriod) {
-        guard let task = self.scheduledPeriodicTasks[uniqueIdentifier]?.task else {
-            return
-        }
-
-        self.scheduledPeriodicTasks[uniqueIdentifier]!.task.isRunning = true
-
-        func onComplete(result: TaskResult) {
-            guard self.scheduledPeriodicTasks[uniqueIdentifier] != nil else {
-                return
-            }
-
-            switch result {
-            case .success:
-                let date = NSDate()
-                self.scheduledPeriodicTasks[uniqueIdentifier]!.task.lastSuccessfulRun = date
-                self.schedule(periodicTask: task, with: period, at: period.nextDate(date))
-            case .error(_):
-                let date = NSDate().dateByAddingTimeInterval(60 * 60) // Retry in 1 hour
-                self.schedule(periodicTask: task, with: period, at: date)
-            }
-            self.scheduledPeriodicTasks[uniqueIdentifier]!.task.isRunning = false
-        }
-
-        switch task.performIn {
-        case .foreground:
-            logTask("Performing \(uniqueIdentifier) in foreground")
-            task.perform(onComplete)
-        case .background:
-            logTask("Performing \(uniqueIdentifier) in background")
-            TaskService.performInBackground {
-                task.perform { result in
-                    TaskService.performInForeground {
-                        onComplete(result)
-                    }
-                }
-            }
-        }
-    }
-
-    func logTask(message: String) {
+    func logTask(_ message: String) {
         if self.logTasks {
             print(message)
         }

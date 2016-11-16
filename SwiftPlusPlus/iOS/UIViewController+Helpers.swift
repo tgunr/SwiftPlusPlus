@@ -9,44 +9,44 @@
 import Foundation
 
 public enum PopoverPosition {
-    case Default
-    case TopMiddle
-    case Custom(sourceRect: CGRect)
+    case `default`
+    case topMiddle
+    case custom(sourceRect: CGRect)
 }
 
 extension UIViewController {
-    public func present(popoverViewController viewController: UIViewController, from sourceBarButtonItem: UIBarButtonItem, permittedArrowDirections: UIPopoverArrowDirection = .Any) {
-        viewController.modalPresentationStyle = .Popover
+    public func present(popoverViewController viewController: UIViewController, from sourceBarButtonItem: UIBarButtonItem, permittedArrowDirections: UIPopoverArrowDirection = .any) {
+        viewController.modalPresentationStyle = .popover
 
-        self.presentViewController(viewController, animated: true, completion: nil)
+        self.present(viewController, animated: true, completion: nil)
 
         viewController.popoverPresentationController!.permittedArrowDirections = permittedArrowDirections
         viewController.popoverPresentationController!.barButtonItem = sourceBarButtonItem
     }
 
-    public func present(popoverViewController viewController: UIViewController, fromSourceView sourceView: UIView, permittedArrowDirections: UIPopoverArrowDirection = .Any, position: PopoverPosition = .Default) {
-        viewController.modalPresentationStyle = .Popover
+    public func present(popoverViewController viewController: UIViewController, fromSourceView sourceView: UIView, permittedArrowDirections: UIPopoverArrowDirection = .any, position: PopoverPosition = .default) {
+        viewController.modalPresentationStyle = .popover
 
-        self.presentViewController(viewController, animated: true, completion: nil)
+        self.present(viewController, animated: true, completion: nil)
 
         viewController.popoverPresentationController!.permittedArrowDirections = permittedArrowDirections
         viewController.popoverPresentationController!.sourceView = sourceView
 
         switch position {
-        case .Default:
+        case .default:
             break
-        case .TopMiddle:
+        case .topMiddle:
             let rect = CGRect(origin: CGPoint(x: sourceView.bounds.midX, y: sourceView.bounds.minY), size: CGSize(width: 1, height: 1))
             viewController.popoverPresentationController!.sourceRect = rect
-        case .Custom(sourceRect: let rect):
+        case .custom(sourceRect: let rect):
             viewController.popoverPresentationController!.sourceRect = rect
         }
     }
 
     public func present(overlayViewController viewController: UIViewController) {
-        viewController.modalPresentationStyle = .OverCurrentContext
-        viewController.modalTransitionStyle = .CrossDissolve
+        viewController.modalPresentationStyle = .overCurrentContext
+        viewController.modalTransitionStyle = .crossDissolve
 
-        self.presentViewController(viewController, animated: true, completion: nil)
+        self.present(viewController, animated: true, completion: nil)
     }
 }

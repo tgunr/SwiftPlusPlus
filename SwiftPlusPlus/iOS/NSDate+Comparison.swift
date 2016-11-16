@@ -8,10 +8,10 @@
 
 import Foundation
 
-public func <(lhs: NSDate, rhs: NSDate) -> Bool {
-    return lhs.timeIntervalSinceDate(rhs) < 0
+public func <(lhs: Date, rhs: Date) -> Bool {
+    return lhs.timeIntervalSince(rhs) < 0
 }
 
-public func >(lhs: NSDate, rhs: NSDate) -> Bool {
-    return lhs.timeIntervalSinceDate(rhs) > 0
+public func >(lhs: Date, rhs: Date) -> Bool {
+    return lhs.timeIntervalSince(rhs) > 0
 }

@@ -15,7 +15,7 @@ extension UIView {
         static var VideoController = "VideoController"
     }
 
-    func playVideoWithURL(URL: NSURL) -> VideoController {
+    func playVideoWithURL(_ URL: Foundation.URL) -> VideoController {
         let videoController = VideoController(URL: URL, inView: self)
         objc_setAssociatedObject(
             self,
@@ -27,24 +27,24 @@ extension UIView {
     }
 }
 
-public class VideoController: NSObject {
+open class VideoController: NSObject {
     let moviePlayer: MPMoviePlayerController
     unowned let view: UIView
 
-    private init(URL: NSURL, inView: UIView) {
+    fileprivate init(URL: Foundation.URL, inView: UIView) {
         self.view = inView
         self.moviePlayer = MPMoviePlayerController(contentURL: URL)
 
         super.init()
 
-        self.moviePlayer.view.autoresizingMask = UIViewAutoresizing.FlexibleWidth.union(UIViewAutoresizing.FlexibleHeight)
+        self.moviePlayer.view.autoresizingMask = UIViewAutoresizing.flexibleWidth.union(UIViewAutoresizing.flexibleHeight)
     }
 
     func resume() {
-        NSNotificationCenter.defaultCenter().addObserver(
+        NotificationCenter.default.addObserver(
             self,
             selector: #selector(moviePlayerPreparedToPlayDidChange(_:)),
-            name: MPMediaPlaybackIsPreparedToPlayDidChangeNotification,
+            name: NSNotification.Name.MPMediaPlaybackIsPreparedToPlayDidChange,
             object: self.moviePlayer
         )
         if self.moviePlayer.isPreparedToPlay {
@@ -56,9 +56,9 @@ public class VideoController: NSObject {
     }
 
     func pause() {
-        NSNotificationCenter.defaultCenter().removeObserver(
+        NotificationCenter.default.removeObserver(
             self,
-            name: MPMediaPlaybackIsPreparedToPlayDidChangeNotification,
+            name: NSNotification.Name.MPMediaPlaybackIsPreparedToPlayDidChange,
             object: self.moviePlayer
         )
         self.moviePlayer.pause()
@@ -76,7 +76,7 @@ public class VideoController: NSObject {
 
     // MARK: Notifications
 
-    func moviePlayerPreparedToPlayDidChange(notification: NSNotification) {
+    func moviePlayerPreparedToPlayDidChange(_ notification: Notification) {
         if self.moviePlayer.isPreparedToPlay {
             if self.moviePlayer.view.superview == nil {
                 self.moviePlayer.view.frame = self.view.bounds

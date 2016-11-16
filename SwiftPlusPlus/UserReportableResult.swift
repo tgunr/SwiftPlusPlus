@@ -7,6 +7,6 @@
 //
 
 public enum UserReportableResult<Value> {
-    case Success(Value)
-    case Error(UserReportableError)
+    case success(Value)
+    case error(UserReportableError)
 }
