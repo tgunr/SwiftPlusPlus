@@ -95,9 +95,9 @@ extension Date {
         return dateFormatter.string(from: self)
     }
 
-    public var time: String {
-        return timeFormatter.string(from: self)
-    }
+//    public var time: String {
+//        return timeFormatter.string(from: self)
+//    }
 
     public var shortDate: String {
         return shortDateFormatter.string(from: self)

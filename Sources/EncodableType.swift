@@ -16,7 +16,7 @@ public protocol EncodableType {
 
 extension EncodableType {
     public func copy() -> Self {
-        let object = NativeTypesEncoder.objectFromEncodable(encodable: self)
+        let object = NativeTypesEncoder.objectFromEncodable(self)
         return NativeTypesDecoder.decodableTypeFromObject(object)!
     }
 }

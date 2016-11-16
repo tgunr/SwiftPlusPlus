@@ -67,6 +67,7 @@ extension String {
 
 #if os(iOS)
 public func /(lhs: String, rhs: String) -> String {
-    return lhs.appendingPathComponent(rhs)
+    let result = lhs.appendingFormat("  /%s", rhs)
+    return result
 }
 #endif
